@@ -9,20 +9,32 @@ notebook.
 
 ---
 
-## Prerequisites
-- Python 3.10+
-- An API key for at least one of: Google Gemini, OpenAI, Anthropic.
-- Install (the notebook's first cell does this for you):
-  ```bash
-  pip install langchain langchain-core langchain-community \
-      langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy
-  ```
+## Run it — two ways
 
-## Run it
-1. Open `genai-lab.ipynb` in Jupyter / VS Code / Colab (or run `genai-lab.py`).
-2. **Setup cell:** set `PROVIDER` (`"gemini" | "openai" | "anthropic"`) and paste
-   your key when prompted (stored in an env var for the session).
-3. Run top to bottom.
+### ▶ Option A — Open in Google Colab (zero setup)
+1. Open: https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/genai-lab.ipynb
+   (or click **🚀 Open in Colab** in the app's *For developers* panel).
+2. Run the first cell (`%pip install …`) — Colab installs everything for you.
+3. In the setup cell, set `PROVIDER` (`"gemini" | "openai" | "anthropic"`) and
+   paste your API key when prompted.
+4. Run top to bottom.
+
+### 💻 Option B — Local Python
+1. Python 3.10+. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate          # Windows: .venv\Scripts\activate
+   ```
+2. Install the dependencies:
+   ```bash
+   pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy
+   ```
+3. Run it as a **notebook** or a **script**:
+   ```bash
+   pip install jupyterlab && jupyter lab genai-lab.ipynb   # notebook
+   python genai-lab.py                                     # script
+   ```
+4. Set `PROVIDER` + paste your key. (Embeddings labs need **Gemini** or **OpenAI**.)
 
 The setup defines two helpers used everywhere:
 - `make_llm(temperature=…, top_p=…, top_k=…)` → a `ChatModel` for the chosen

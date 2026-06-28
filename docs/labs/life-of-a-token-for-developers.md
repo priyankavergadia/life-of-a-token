@@ -10,13 +10,31 @@ The visualized transformer journey, reproduced in real code on a small open mode
 
 ---
 
-## Prerequisites
-- Python 3.10+ (or just click **Open in Colab**).
-- Installs in the first cell:
-  ```bash
-  pip install transformers torch tiktoken numpy
-  ```
-- No API key needed — GPT-2 downloads from the Hugging Face hub.
+## Run it — two ways
+
+### ▶ Option A — Open in Google Colab (zero setup)
+1. Open: https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/life-of-a-token.ipynb
+   (or click **🚀 Open in Colab** in the app's *For developers* panel).
+2. Run the first cell (`%pip install …`) — Colab installs everything for you.
+3. **No API key needed** — GPT-2 downloads from the Hugging Face hub.
+4. Set `TEXT` to your prompt and run the rest top to bottom.
+
+### 💻 Option B — Local Python
+1. Python 3.10+. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate          # Windows: .venv\Scripts\activate
+   ```
+2. Install the dependencies:
+   ```bash
+   pip install transformers torch tiktoken numpy
+   ```
+3. Run it as a **notebook** or a **script**:
+   ```bash
+   pip install jupyterlab && jupyter lab life-of-a-token.ipynb   # notebook
+   python life-of-a-token.py                                     # script
+   ```
+4. No API key needed; set `TEXT` to inspect any prompt.
 
 ## What each step does (every cell is a small function)
 | Step | Code | Shows |
