@@ -455,6 +455,7 @@ button { font-family: inherit; cursor: pointer; }
 .guide-dl { display: flex; gap: 8px; margin-left: auto; }
 .guide-dl a { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--teal-deep); background: var(--panel); border: 2px solid var(--ink); border-radius: 8px; padding: 4px 9px; text-decoration: none; box-shadow: var(--sticker-sm); }
 .guide-dl a:hover { transform: translate(-1px,-1px); }
+.guide-dl a.dl-colab { color: #b5560a; border-color: #f4a81d; background: #fff4d6; }
 .guide-body { margin-top: 11px; padding-top: 11px; border-top: 1.5px dashed rgba(43,38,30,0.22); font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; }
 .guide-body h4 { margin: 0 0 6px; font-family: var(--display); font-size: 14.5px; color: var(--ink); }
 .guide-body ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }

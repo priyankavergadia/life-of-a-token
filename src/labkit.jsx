@@ -174,6 +174,8 @@ export function ConnectBar({ creds, setCreds }) {
 }
 
 /* ---------------- In-app instructions panel (For everyone / For developers) -- */
+// Colab opens any notebook straight from the public GitHub repo.
+const COLAB_BASE = 'https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/'
 export function GuidePanel({ guide }) {
   const [open, setOpen] = useState(true)
   const [tab, setTab] = useState('everyone')
@@ -189,8 +191,9 @@ export function GuidePanel({ guide }) {
         </div>
         {guide.files && (
           <div className="guide-dl">
-            {guide.files.ipynb && <a href={`${base}labs/${guide.files.ipynb}`} download>📓 Notebook</a>}
-            {guide.files.py && <a href={`${base}labs/${guide.files.py}`} download>🐍 Script</a>}
+            {guide.files.ipynb && <a className="dl-colab" href={`${COLAB_BASE}${guide.files.ipynb}`} target="_blank" rel="noreferrer">🚀 Open in Colab</a>}
+            {guide.files.ipynb && <a href={`${base}labs/${guide.files.ipynb}`} download>📓 .ipynb</a>}
+            {guide.files.py && <a href={`${base}labs/${guide.files.py}`} download>🐍 .py</a>}
           </div>
         )}
       </div>
