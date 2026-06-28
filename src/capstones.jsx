@@ -130,24 +130,41 @@ const C1_GUIDE = {
   files: { ipynb: 'project-llm-outputs.ipynb', py: 'project-llm-outputs.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone</h4>
-      <ul>
-        <li>Make AI return <b>trustworthy data</b>, not a chatty paragraph — shown as a document auditor.</li>
-        <li>Add a key in the <b>⚡ Go live</b> bar (any provider). No key → demo.</li>
-        <li>Read <b>Schema</b> (the fields the AI must fill), then <b>upload a document</b> and click <b>Audit</b>.</li>
-        <li>The AI <b>reads</b> the image; plain rules <b>decide</b> PASS/FAIL — so the verdict is never made up.</li>
-      </ul>
+      <h4>🙂 For everyone — audit a document, step by step</h4>
+      <p>You’ll make an AI turn a picture of a document into <b>trustworthy data</b> and a clear <b>PASS/FAIL</b> decision.</p>
+      <span className="g-sub">Set up</span>
+      <ol>
+        <li>Paste an API key in the <b>⚡ Go live</b> bar (any provider works here). No key → you’ll see a demo.</li>
+        <li>Have a document image ready — a shipping label or invoice photo is perfect.</li>
+      </ol>
+      <span className="g-sub">Walk the steps</span>
+      <ol>
+        <li><b>Overview</b> — read the pipeline: Identify → Extract → Validate → Decide.</li>
+        <li><b>Schema</b> — look at the exact fields the AI is forced to fill (sender, weight, international?, tracking ID, confidence).<span className="g-expect">A fixed shape means the next system can trust the output.</span></li>
+        <li><b>Extract &amp; Audit</b> — click <b>📁 Upload a doc</b> and choose your image (or use the sample).</li>
+        <li>Click <b>🛡️ Audit for real</b>.<span className="g-expect">The AI reads the image into the fields, then code checks the rules (e.g. over 50 kg → FAIL).</span></li>
+        <li><b>Recap</b> — note the same pipeline works for invoices, passports, claims.</li>
+      </ol>
+      <span className="g-note">✅ <b>You’re done when</b> you’ve uploaded a doc and seen a PASS/FAIL verdict with the extracted fields. Try a label that breaks a rule (e.g. very heavy) and watch it FAIL.</span>
     </>
   ),
   developers: (
     <>
-      <h4>👩‍💻 For developers</h4>
-      <ul>
-        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain.</li>
-        <li>A Pydantic <code>ShippingDocument</code> + <code>with_structured_output</code> forces typed fields from a vision message.</li>
-        <li>Deterministic Python rules build the PASS/FAIL verdict — auditable, no hallucinated decisions.</li>
-        <li>Needs a vision-capable provider; keep <code>temperature=0</code> for extraction.</li>
-      </ul>
+      <h4>👩‍💻 For developers — run the notebook</h4>
+      <p>Structured extraction from a document image, then deterministic rules — a typed, auditable PASS/FAIL pipeline.</p>
+      <span className="g-sub">Setup — pick one</span>
+      <ol>
+        <li><b>🚀 Open in Colab</b>: click <b>Open in Colab</b> above → run the first cell.</li>
+        <li><b>💻 Local:</b> <code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code> → <code>pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy</code> → <code>jupyter lab project-llm-outputs.ipynb</code> (or <code>python project-llm-outputs.py</code>).</li>
+        <li>Set <code>PROVIDER</code> to a <b>vision-capable</b> provider + paste your key; point <code>IMAGE_PATH</code> at a local document image.</li>
+      </ol>
+      <span className="g-sub">Run each cell</span>
+      <ol>
+        <li><b>Schema</b> — a Pydantic <code>ShippingDocument</code>; <code>make_llm(temperature=0).with_structured_output(ShippingDocument)</code> forces that exact shape.</li>
+        <li><b>Extract</b> — a <code>HumanMessage</code> with a text part + an <code>image_url</code> data URI → returns a validated object.</li>
+        <li><b>Validate</b> — plain Python rules build an <code>issues</code> list → <code>"FAIL" if issues else "PASS"</code>.</li>
+      </ol>
+      <span className="g-note">🧪 <b>Extend:</b> add a field (e.g. <code>declared_value</code>) + a matching rule; route low <code>confidence_score</code> docs to human review.</span>
     </>
   ),
 }
@@ -417,24 +434,40 @@ const C2_GUIDE = {
   files: { ipynb: 'project-rag.ipynb', py: 'project-rag.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone</h4>
-      <ul>
-        <li>Build an AI that answers <b>only</b> from approved docs — and <b>refuses</b> the rest.</li>
-        <li>Add a <b>Gemini or OpenAI</b> key in the ⚡ bar (search needs embeddings; Claude has none).</li>
-        <li><b>Edit or upload</b> your knowledge base, then ask questions — watch in-scope answered, out-of-scope refused.</li>
-        <li>Open <b>RAG vs Fine-tune</b>: RAG = new <i>facts</i>; fine-tuning = new <i>behaviour</i> (the cat voice).</li>
-      </ul>
+      <h4>🙂 For everyone — an honest AI Oracle, step by step</h4>
+      <p>You’ll build an AI that answers <b>only</b> from approved documents and <b>refuses</b> anything else — then see how RAG differs from fine-tuning.</p>
+      <span className="g-sub">Set up</span>
+      <ol>
+        <li>In the <b>⚡ Go live</b> bar, choose <b>Gemini</b> or <b>OpenAI</b> and paste a key. (Search needs embeddings; Claude has none.) No key → demo.</li>
+      </ol>
+      <span className="g-sub">Walk the steps</span>
+      <ol>
+        <li><b>Overview</b> — read the flow: Ingest → Embed → Retrieve → Answer or refuse.</li>
+        <li><b>Knowledge</b> — edit the policy list (one per line), <b>or</b> click <b>upload .txt/.md</b> to load your own document.<span className="g-expect">This becomes the live knowledge base for the next step.</span></li>
+        <li><b>Retrieve + Answer</b> — pick a sample question or type your own, then click <b>Retrieve + answer for real</b>.</li>
+        <li>Try an <b>out-of-scope</b> question (e.g. “maternity leave” when it isn’t in your docs).<span className="g-expect">It refuses instead of guessing.</span></li>
+        <li><b>RAG vs Fine-tune</b> — toggle the two: RAG adds new <i>facts</i> (instant); fine-tuning changes <i>behaviour</i> (the funny cat voice) by training on thousands of examples.</li>
+      </ol>
+      <span className="g-note">✅ <b>You’re done when</b> an in-scope question is answered from your docs and an out-of-scope one is refused — and you can say why RAG ≠ fine-tuning.</span>
     </>
   ),
   developers: (
     <>
-      <h4>👩‍💻 For developers</h4>
-      <ul>
-        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain + FAISS.</li>
-        <li><code>FAISS.from_texts(...)</code> → <code>as_retriever(k=2)</code>; a strict system prompt enforces the exact refusal string.</li>
-        <li>Swap in chunked PDFs (<code>PyPDFLoader</code> + splitter); persist with <code>save_local</code>.</li>
-        <li>Fine-tuning cell shows the JSONL dataset shape — use it for tone/behaviour, RAG for facts.</li>
-      </ul>
+      <h4>👩‍💻 For developers — run the notebook</h4>
+      <p>Strict RAG: a FAISS index → top-k retrieval → answer constrained to context, with an explicit refusal.</p>
+      <span className="g-sub">Setup — pick one</span>
+      <ol>
+        <li><b>🚀 Open in Colab</b>: click <b>Open in Colab</b> above → run the first cell.</li>
+        <li><b>💻 Local:</b> <code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code> → <code>pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy</code> → <code>jupyter lab project-rag.ipynb</code> (or <code>python project-rag.py</code>).</li>
+        <li>Set <code>PROVIDER="gemini"</code> or <code>"openai"</code> + paste your key (embeddings required).</li>
+      </ol>
+      <span className="g-sub">Run each cell</span>
+      <ol>
+        <li><b>Ingest</b> — <code>FAISS.from_texts(company_policies, make_embeddings())</code> → <code>as_retriever(search_kwargs=&#123;"k": 2&#125;)</code>.</li>
+        <li><b>Answer-or-refuse</b> — a strict system prompt (“answer only from context, else reply exactly <code>REFUSAL</code>”); <code>ask(q)</code> retrieves, joins docs into <code>&#123;context&#125;</code>, runs <code>prompt | make_llm(0)</code>.</li>
+        <li><b>RAG vs fine-tuning</b> — read the JSONL-style <code>finetune_dataset</code> (cat-tone pairs) + the upload→train→swap comments (not executed).</li>
+      </ol>
+      <span className="g-note">🧪 <b>Extend:</b> swap policies for chunked PDFs (<code>PyPDFLoader</code> + splitter); persist with <code>vectorstore.save_local(...)</code>; log retrieved chunks + scores.</span>
     </>
   ),
 }
@@ -545,24 +578,38 @@ const C3_GUIDE = {
   files: { ipynb: 'project-tools.ipynb', py: 'project-tools.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone</h4>
-      <ul>
-        <li>Turn an AI into a “digital worker” that <b>uses tools</b> and <b>chains steps</b>.</li>
-        <li>Add a key in the ⚡ bar (any provider). No key → demo trace.</li>
-        <li>See the two tools, then <b>edit the question</b> and click <b>Run the agent</b>.</li>
-        <li>Watch it fetch revenue <b>first</b>, then compute the margin <b>second</b> — math by code, never guessed.</li>
-      </ul>
+      <h4>🙂 For everyone — a tool-using agent, step by step</h4>
+      <p>You’ll watch an AI become a “digital worker” that <b>uses tools</b> and <b>chains steps</b> to answer a business question — instead of guessing.</p>
+      <span className="g-sub">Set up</span>
+      <ol>
+        <li>Paste a key in the <b>⚡ Go live</b> bar (any provider works). No key → you’ll see a demo trace.</li>
+      </ol>
+      <span className="g-sub">Walk the steps</span>
+      <ol>
+        <li><b>Overview</b> — read the loop: Question → Pick a tool → Run it → Chain + answer.</li>
+        <li><b>Forge tools</b> — read the two tools (look up revenue, calculate margin) and their plain-English descriptions.<span className="g-expect">The AI reads those descriptions to decide which tool to use.</span></li>
+        <li><b>Execute</b> — edit the executive’s question if you like, then click <b>🤖 Run the agent for real</b>.</li>
+        <li>Read the <b>trace</b>: it calls <code>query_sales_db</code> <b>first</b>, then feeds the result into <code>calculate_profit_margin</code> <b>second</b>.<span className="g-expect">Multi-step reasoning, with the math done by code (never guessed).</span></li>
+      </ol>
+      <span className="g-note">✅ <b>You’re done when</b> you’ve run the agent and can point to where it chained one tool’s output into the next.</span>
     </>
   ),
   developers: (
     <>
-      <h4>👩‍💻 For developers</h4>
-      <ul>
-        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain agents.</li>
-        <li>Two <code>@tool</code> functions; the <b>docstrings</b> are what the model reads to choose them.</li>
-        <li><code>create_tool_calling_agent</code> + <code>AgentExecutor(verbose=True)</code> — the prompt needs a <code>{'{agent_scratchpad}'}</code> placeholder.</li>
-        <li>Add tools (SQL, inventory, FX) to grow the toolkit; offloading math = 0% number hallucination.</li>
-      </ul>
+      <h4>👩‍💻 For developers — run the notebook</h4>
+      <p>A multi-step tool-calling agent: two <code>@tool</code> functions + an <code>AgentExecutor</code> that chains them.</p>
+      <span className="g-sub">Setup — pick one</span>
+      <ol>
+        <li><b>🚀 Open in Colab</b>: click <b>Open in Colab</b> above → run the first cell.</li>
+        <li><b>💻 Local:</b> <code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code> → <code>pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy</code> → <code>jupyter lab project-tools.ipynb</code> (or <code>python project-tools.py</code>).</li>
+        <li>Set <code>PROVIDER</code> (any provider — tool-calling works on all three) + paste your key.</li>
+      </ol>
+      <span className="g-sub">Run each cell</span>
+      <ol>
+        <li><b>Forge tools</b> — <code>@tool</code> <code>query_sales_db(product_name)</code> and <code>calculate_profit_margin(revenue, cost)</code>; the <b>docstrings</b> are the interface the model reads.</li>
+        <li><b>Execute</b> — <code>create_tool_calling_agent(make_llm(0), toolkit, prompt)</code> in <code>AgentExecutor(..., verbose=True)</code>; the prompt needs a <code>{'{agent_scratchpad}'}</code> placeholder. Invoke with <code>&#123;"input": question&#125;</code>.<span className="g-expect">Expect: query_sales_db("SuperWidget")→12500, then calculate_profit_margin(12500,4500)→"64.00%".</span></li>
+      </ol>
+      <span className="g-note">🧪 <b>Extend:</b> add tools (<code>check_inventory</code>, <code>run_sql_query</code>, <code>get_exchange_rate</code>); offloading math/lookups to code = 0% number hallucination.</span>
     </>
   ),
 }
@@ -679,24 +726,38 @@ const C4_GUIDE = {
   files: { ipynb: 'project-personalization.ipynb', py: 'project-personalization.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone</h4>
-      <ul>
-        <li>Generate a personalized marketing email — creative copy you can still trust.</li>
-        <li>Add a <b>Gemini or OpenAI</b> key in the ⚡ bar (matching needs embeddings).</li>
-        <li><b>Matchmaker:</b> edit what the customer bought and click <b>Match</b> to see related products.</li>
-        <li><b>Generate:</b> see the same result as a friendly email <i>and</i> the strict JSON behind it.</li>
-      </ul>
+      <h4>🙂 For everyone — personalize an email, step by step</h4>
+      <p>You’ll combine three skills — match by meaning, write creatively, and lock it to a strict format — to generate a personalized marketing email.</p>
+      <span className="g-sub">Set up</span>
+      <ol>
+        <li>In the <b>⚡ Go live</b> bar, choose <b>Gemini</b> or <b>OpenAI</b> and paste a key (matching needs embeddings). No key → demo.</li>
+      </ol>
+      <span className="g-sub">Walk the steps</span>
+      <ol>
+        <li><b>Overview</b> — read the flow: Match → Create → Lock to JSON → Send.</li>
+        <li><b>Matchmaker</b> — edit <b>what the customer bought</b> (e.g. a tent), then click <b>🧲 Match for real</b>.<span className="g-expect">Related products (boots, rain jacket) rise to the top; the office chair stays away.</span></li>
+        <li><b>Generate</b> — click <b>✍️ Generate for real</b>.<span className="g-expect">You get the same result two ways: a friendly email AND the strict JSON behind it.</span></li>
+        <li><b>Recap</b> — note how this powers cold-email tools, push notifications, and more.</li>
+      </ol>
+      <span className="g-note">✅ <b>You’re done when</b> you’ve matched a purchase and generated an email + its JSON. Try a totally different purchase and watch both change.</span>
     </>
   ),
   developers: (
     <>
-      <h4>👩‍💻 For developers</h4>
-      <ul>
-        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain + FAISS.</li>
-        <li>FAISS recommends top-k by meaning; a <code>MarketingEmail</code> Pydantic schema + <code>with_structured_output</code> at <code>temperature=0.8</code> keeps it creative but valid.</li>
-        <li>Pipe <code>model_dump()</code> straight into SendGrid/Mailchimp; add a <code>customer_persona</code> field to extend.</li>
-        <li>Needs Gemini or OpenAI for the embeddings step.</li>
-      </ul>
+      <h4>👩‍💻 For developers — run the notebook</h4>
+      <p>Embeddings (semantic match) + high-temperature generation + structured output → a creative-but-parseable email payload.</p>
+      <span className="g-sub">Setup — pick one</span>
+      <ol>
+        <li><b>🚀 Open in Colab</b>: click <b>Open in Colab</b> above → run the first cell.</li>
+        <li><b>💻 Local:</b> <code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code> → <code>pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy</code> → <code>jupyter lab project-personalization.ipynb</code> (or <code>python project-personalization.py</code>).</li>
+        <li>Set <code>PROVIDER="gemini"</code> or <code>"openai"</code> + paste your key (embeddings required).</li>
+      </ol>
+      <span className="g-sub">Run each cell</span>
+      <ol>
+        <li><b>Match</b> — <code>FAISS.from_texts(catalog, make_embeddings())</code>; <code>recommend(purchase, k)</code> returns the top-k related products.</li>
+        <li><b>Generate</b> — a <code>MarketingEmail</code> Pydantic schema + <code>make_llm(temperature=0.8).with_structured_output(MarketingEmail)</code>; print with <code>email.model_dump_json(indent=2)</code>.<span className="g-expect">Creative copy, but guaranteed valid JSON (subject, body, code, CTA).</span></li>
+      </ol>
+      <span className="g-note">🧪 <b>Extend:</b> add a <code>customer_persona</code> field; pipe <code>model_dump()</code> into SendGrid/Mailchimp; A/B test subject lines at higher temperature.</span>
     </>
   ),
 }

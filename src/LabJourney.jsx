@@ -476,24 +476,52 @@ const GENAI_GUIDE = {
   files: { ipynb: 'genai-lab.ipynb', py: 'genai-lab.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone</h4>
-      <ul>
-        <li>Six core AI skills. The <b>left panel is real code</b>; the <b>right panel shows what it does</b>.</li>
-        <li>Paste a free API key in the <b>⚡ Go live</b> bar to “Run for real” — no key just shows demos.</li>
-        <li>Walk the steps: <b>Toggle</b> (swap vendors) → <b>Temperature</b> (drag the dials, Run 3×) → <b>Embeddings</b> → <b>RAG</b> → <b>Agents</b> → <b>Vision</b>.</li>
-        <li>Wherever you see “✎ editable”, change a value and re-run to see cause and effect.</li>
-      </ul>
+      <h4>🙂 For everyone — six skills, click by click</h4>
+      <p>Each step has the real <b>code on the left</b> and <b>what it does on the right</b>. With a key you get real model output; without one you still see realistic demos.</p>
+      <span className="g-sub">Get set up (once)</span>
+      <ol>
+        <li>To run things <i>for real</i>, get a free API key: <b>Gemini</b> (<a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com/apikey</a>) is the easiest. (OpenAI and Claude work too.)</li>
+        <li>Paste it into the <b>⚡ Go live</b> bar at the top. It’s stored only in your browser. The “How do I get one?” link there has step-by-step help.</li>
+        <li>No key? That’s fine — keep going in <b>demo mode</b>.</li>
+      </ol>
+      <span className="g-sub">Do each step in order</span>
+      <ol>
+        <li><b>The Toggle</b> — click between Gemini / OpenAI / Claude. Notice the line <code>answer = llm.invoke(prompt)</code> never changes.<span className="g-expect">Lesson: you’re not locked to one vendor.</span></li>
+        <li><b>Temperature</b> — drag <b>Temperature</b>, <b>Top-P</b>, <b>Top-K</b>, then click <b>Run 3×</b>. At temp 0 the three answers match; turn it up and they diverge.</li>
+        <li><b>Embeddings</b> — edit the word list, click <b>Embed for real</b> (needs Gemini/OpenAI). Related words cluster on the map.</li>
+        <li><b>Context / RAG</b> — type a question + your private facts, toggle <b>inject</b>, click <b>Ask for real</b>. No facts → it guesses; with facts → it’s correct.</li>
+        <li><b>Agents</b> — edit the request, click <b>Run agent for real</b>, and watch <b>Think → Act → Observe → Answer</b>.</li>
+        <li><b>Vision</b> — upload an image, click <b>Analyze for real</b>. The model describes it — no OCR.</li>
+      </ol>
+      <span className="g-note">💡 Wherever you see “✎ editable”, change a value in the code <i>or</i> the controls — they stay in sync — then re-run to see the effect.</span>
     </>
   ),
   developers: (
     <>
-      <h4>👩‍💻 For developers</h4>
-      <ul>
-        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. It’s <b>LangChain</b> and model-agnostic.</li>
-        <li>Run the <b>Setup</b> cell: set <code>PROVIDER</code> (<code>gemini</code>/<code>openai</code>/<code>anthropic</code>) + your key; it defines <code>make_llm()</code> and <code>make_embeddings()</code>.</li>
-        <li>Each step maps to a notebook section: toggle, temperature (<code>top_p</code>/<code>top_k</code>), embeddings + cosine, RAG prompt, <code>create_tool_calling_agent</code>, vision message.</li>
-        <li>Embeddings labs need <b>Gemini or OpenAI</b> (Claude has no embeddings API).</li>
-      </ul>
+      <h4>👩‍💻 For developers — run the notebook</h4>
+      <p>All six skills in one runnable, model-agnostic <b>LangChain</b> notebook.</p>
+      <span className="g-sub">Setup — pick one</span>
+      <ol>
+        <li><b>🚀 Open in Colab</b> (zero setup): click <b>Open in Colab</b> above → run the first cell (<code>%pip install …</code>).</li>
+        <li><b>💻 Local Python:</b>
+          <ul>
+            <li><code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code></li>
+            <li><code>pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy</code></li>
+            <li><code>jupyter lab genai-lab.ipynb</code> (or <code>python genai-lab.py</code>)</li>
+          </ul>
+        </li>
+        <li>In the <b>Setup</b> cell, set <code>PROVIDER</code> (<code>gemini</code>/<code>openai</code>/<code>anthropic</code>) and paste your key when prompted. It defines <code>make_llm()</code> and <code>make_embeddings()</code>.</li>
+      </ol>
+      <span className="g-sub">Run each section</span>
+      <ol>
+        <li><b>Toggle</b> — <code>make_llm().invoke("…")</code>; change <code>PROVIDER</code>, re-run, same call site.</li>
+        <li><b>Temperature</b> — <code>make_llm(temperature, top_p, top_k)</code>; loops the same prompt 3×.<span className="g-expect">temp 0 → identical; temp 1 → divergent. (OpenAI ignores top_k.)</span></li>
+        <li><b>Embeddings</b> — <code>embed_documents()</code> + a <code>cosine()</code> helper (needs Gemini/OpenAI).</li>
+        <li><b>RAG</b> — a <code>ChatPromptTemplate</code> with/without a <code>context</code> string.</li>
+        <li><b>Agents</b> — <code>@tool</code> + <code>create_tool_calling_agent</code> + <code>AgentExecutor(verbose=True)</code> to see the trace.</li>
+        <li><b>Vision</b> — a <code>HumanMessage</code> with an <code>image_url</code> data URI; point it at a local image.</li>
+      </ol>
+      <span className="g-note">🧪 <b>Try:</b> sweep temperature 0→2; add a second <code>@tool</code>; print a full embedding similarity matrix.</span>
     </>
   ),
 }

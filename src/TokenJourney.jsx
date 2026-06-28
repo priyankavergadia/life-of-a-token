@@ -12,24 +12,55 @@ const TOKEN_GUIDE = {
   files: { ipynb: 'life-of-a-token.ipynb', py: 'life-of-a-token.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone</h4>
-      <ul>
-        <li>This is the <b>theory</b> — what happens inside an AI when it reads your words. No key or code needed.</li>
-        <li>Type a prompt up top and click <b>Trace it</b> — every visual recomputes from <i>your</i> words.</li>
-        <li>Walk the 9 steps: <b>Tokenize → Embed → Meaning map → Position → Attention → Feed-forward → Stack → Predict</b>.</li>
-        <li>Use the step tabs, the <b>Back/Next</b> buttons, or the <b>← / →</b> arrow keys.</li>
-      </ul>
+      <h4>🙂 For everyone — a guided walk (no key, no code)</h4>
+      <p>This tab shows, step by step, what happens inside an AI the moment it reads your words. Follow along in order — it takes about 5 minutes.</p>
+      <span className="g-sub">Set it up</span>
+      <ol>
+        <li>In the <b>“Your query to Claude”</b> box at the very top, type a short prompt — e.g. <i>“Why is the sky blue?”</i> (or click one of the grey <b>try:</b> chips).</li>
+        <li>Click <b>Trace it ↦</b>.<span className="g-expect">Every chart below now rebuilds from <i>your</i> exact words.</span></li>
+        <li>Move between steps with the numbered tabs, the <b>← Back / Next →</b> buttons, or your keyboard <b>← / →</b> keys.</li>
+      </ol>
+      <span className="g-sub">Walk the 9 steps</span>
+      <ol>
+        <li><b>Start</b> — read the intro. Mental model: an AI is an <i>assembly line</i> that transforms your words a little at each station.</li>
+        <li><b>Tokenize</b> — see your sentence chopped into <b>tokens</b>. Notice long/rare words split into pieces and spaces attach to words. Each token has an ID number.</li>
+        <li><b>Embed</b> — each token becomes a row of bars (its <b>vector</b>).<span className="g-expect">Words with similar meaning have similar bar patterns.</span></li>
+        <li><b>Meaning map</b> — hover the dots. Closer dots = more similar meaning. This is the key idea: <b>meaning becomes position</b>.</li>
+        <li><b>Position</b> — see a wave “fingerprint” added to each token so the model knows word order (“dog bites man” ≠ “man bites dog”).</li>
+        <li><b>Attention</b> — read the grid: each word decides how much to “look at” the others. Click the <b>head</b> buttons to see different focus patterns. The blank top-right triangle means a word can only look <i>backward</i>.</li>
+        <li><b>Feed-forward</b> — each word is processed on its own. This is where most learned <b>facts</b> live.</li>
+        <li><b>Stack ×N</b> — watch the numbers flow through the block again and again. <b>Depth</b> is where capability comes from.</li>
+        <li><b>Predict</b> — the model scores every possible next word and turns it into <b>percentages</b>. It picks one, adds it, and runs the whole pipeline again — one word at a time.</li>
+      </ol>
+      <span className="g-note">✅ <b>You’re done when</b> you can explain the path in your own words: text → tokens → vectors → +position → attention → feed-forward → repeat → next word. Try a very different prompt and watch every visual change.</span>
     </>
   ),
   developers: (
     <>
-      <h4>👩‍💻 For developers</h4>
-      <ul>
-        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — runs the <i>same</i> journey on a real model (GPT-2) in code.</li>
-        <li>Every step is a small function: <code>tokenize()</code> → token/positional embeddings (<code>wte</code>/<code>wpe</code>) → attention matrices → per-layer hidden states → softmax over the vocab for the next token.</li>
-        <li>Uses <code>transformers</code> + <code>torch</code>; change the <code>TEXT</code> variable and re-run to inspect any prompt.</li>
-        <li>Shows the real causal mask, cosine similarity between tokens, and a greedy continuation.</li>
-      </ul>
+      <h4>👩‍💻 For developers — run the same journey in code</h4>
+      <p>Reproduce every step on a real open model (GPT-2) with 🤗 <code>transformers</code>. Each step is a tiny function you can poke at.</p>
+      <span className="g-sub">Setup — pick one</span>
+      <ol>
+        <li><b>🚀 Open in Colab</b> (zero setup): click <b>Open in Colab</b> above → run the first cell (<code>%pip install …</code>) → run the rest. No API key needed (GPT-2 downloads from Hugging Face).</li>
+        <li><b>💻 Local Python:</b>
+          <ul>
+            <li><code>python -m venv .venv &amp;&amp; source .venv/bin/activate</code> (Windows: <code>.venv\Scripts\activate</code>)</li>
+            <li><code>pip install transformers torch tiktoken numpy</code></li>
+            <li>Notebook: <code>pip install jupyterlab &amp;&amp; jupyter lab life-of-a-token.ipynb</code> — or script: <code>python life-of-a-token.py</code></li>
+          </ul>
+        </li>
+      </ol>
+      <span className="g-sub">Run it, cell by cell</span>
+      <ol>
+        <li><b>Load:</b> <code>GPT2LMHeadModel.from_pretrained("gpt2", output_attentions=True, output_hidden_states=True)</code> + the tokenizer. Set <code>TEXT</code> to your prompt.</li>
+        <li><b>Tokenize:</b> <code>tokenize(text)</code> returns ids + decoded pieces.<span className="g-expect">Prints each token with its ID.</span></li>
+        <li><b>Embed:</b> <code>model.transformer.wte(ids)</code> → vectors; <code>cosine()</code> compares two tokens (~0.8 for related, ~0.1 for unrelated).</li>
+        <li><b>Position:</b> <code>model.transformer.wpe(positions)</code>; add it to the token embeddings — order is now encoded.</li>
+        <li><b>Attention:</b> <code>out.attentions[layer][0, head]</code> prints a matrix; the upper-right ≈ 0 is the causal mask.</li>
+        <li><b>Stack:</b> <code>out.hidden_states</code> (n_layers+1 tensors); the printed “drift” shows how the last token’s vector evolves with depth.</li>
+        <li><b>Predict:</b> <code>softmax(out.logits[0,-1])</code> + <code>topk</code> for the next-token probabilities; <code>model.generate(...)</code> for a greedy continuation.</li>
+      </ol>
+      <span className="g-note">🧪 <b>Experiment:</b> change <code>TEXT</code> and re-run; print a different layer/head; swap <code>"gpt2"</code> for <code>"distilgpt2"</code> for a faster run.</span>
     </>
   ),
 }
