@@ -6,6 +6,33 @@ import {
   AttentionView, FFNView, LayersView, OutputView,
 } from './components.jsx'
 import { StickFigure, Squiggle } from './Doodles.jsx'
+import { GuidePanel } from './labkit.jsx'
+
+const TOKEN_GUIDE = {
+  files: { ipynb: 'life-of-a-token.ipynb', py: 'life-of-a-token.py' },
+  everyone: (
+    <>
+      <h4>🙂 For everyone</h4>
+      <ul>
+        <li>This is the <b>theory</b> — what happens inside an AI when it reads your words. No key or code needed.</li>
+        <li>Type a prompt up top and click <b>Trace it</b> — every visual recomputes from <i>your</i> words.</li>
+        <li>Walk the 9 steps: <b>Tokenize → Embed → Meaning map → Position → Attention → Feed-forward → Stack → Predict</b>.</li>
+        <li>Use the step tabs, the <b>Back/Next</b> buttons, or the <b>← / →</b> arrow keys.</li>
+      </ul>
+    </>
+  ),
+  developers: (
+    <>
+      <h4>👩‍💻 For developers</h4>
+      <ul>
+        <li><b>Open in Colab</b> (or download) to run the <i>same</i> journey on a real model (GPT-2) in code.</li>
+        <li>Every step is a small function: <code>tokenize()</code> → token/positional embeddings (<code>wte</code>/<code>wpe</code>) → attention matrices → per-layer hidden states → softmax over the vocab for the next token.</li>
+        <li>Uses <code>transformers</code> + <code>torch</code>; change the <code>TEXT</code> variable and re-run to inspect any prompt.</li>
+        <li>Shows the real causal mask, cosine similarity between tokens, and a greedy continuation.</li>
+      </ul>
+    </>
+  ),
+}
 
 // which pose the little guide strikes on each step
 const POSES = ['wave', 'point', 'think', 'point', 'think', 'cheer', 'think', 'cheer', 'cheer']
@@ -180,6 +207,8 @@ export default function TokenJourney() {
           ))}
         </div>
       </div>
+
+      <GuidePanel guide={TOKEN_GUIDE} />
 
       {/* stepper */}
       <div className="stepper">
