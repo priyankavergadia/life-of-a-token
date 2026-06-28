@@ -173,10 +173,36 @@ export function ConnectBar({ creds, setCreds }) {
   )
 }
 
+/* ---------------- In-app instructions panel (For everyone / For developers) -- */
+export function GuidePanel({ guide }) {
+  const [open, setOpen] = useState(true)
+  const [tab, setTab] = useState('everyone')
+  if (!guide) return null
+  const base = import.meta.env.BASE_URL
+  return (
+    <div className="guide">
+      <div className="guide-head">
+        <button className="guide-collapse" onClick={() => setOpen((o) => !o)}>{open ? '▾' : '▸'} 📖 How to use this lab</button>
+        <div className="guide-tabs">
+          <button className={tab === 'everyone' ? 'on' : ''} onClick={() => { setTab('everyone'); setOpen(true) }}>🙂 For everyone</button>
+          <button className={tab === 'developers' ? 'on' : ''} onClick={() => { setTab('developers'); setOpen(true) }}>👩‍💻 For developers</button>
+        </div>
+        {guide.files && (
+          <div className="guide-dl">
+            {guide.files.ipynb && <a href={`${base}labs/${guide.files.ipynb}`} download>📓 Notebook</a>}
+            {guide.files.py && <a href={`${base}labs/${guide.files.py}`} download>🐍 Script</a>}
+          </div>
+        )}
+      </div>
+      {open && <div className="guide-body">{tab === 'everyone' ? guide.everyone : guide.developers}</div>}
+    </div>
+  )
+}
+
 /* ---------------- Generic step-journey shell (code | visual) ----------------
    steps: [{ id, tab, kicker, title, file, pose, color, code, explain, Visual }]
    Each step's Visual receives { creds } (liveCreds). */
-export function StepJourney({ steps, creds, setCreds, tagline }) {
+export function StepJourney({ steps, creds, setCreds, tagline, guide }) {
   const [step, setStep] = useState(0)
   const [codeMap, setCodeMap] = useState({})
   const [shared, setShared] = useState({}) // cross-step state (e.g. an edited knowledge base)
@@ -207,6 +233,8 @@ export function StepJourney({ steps, creds, setCreds, tagline }) {
       </div>
 
       <ConnectBar creds={creds} setCreds={setCreds} />
+
+      <GuidePanel guide={guide} />
 
       <div className="stepper">
         {steps.map((s, i) => (

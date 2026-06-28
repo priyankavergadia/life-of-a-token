@@ -445,6 +445,23 @@ button { font-family: inherit; cursor: pointer; }
 .ft-out { background: #fff0df; }
 @media (max-width: 520px) { .ft-pair { grid-template-columns: 1fr; } }
 
+/* ---- in-app instructions panel ---- */
+.guide { border: 2.4px solid var(--ink); border-radius: 14px 11px 14px 11px / 11px 14px 11px 14px; background: var(--panel); box-shadow: var(--sticker-sm); padding: 11px 14px; margin: 14px 0; }
+.guide-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.guide-collapse { font-family: var(--display); font-weight: 700; font-size: 14px; color: var(--ink); background: none; border: 0; cursor: pointer; padding: 0; }
+.guide-tabs { display: inline-flex; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; box-shadow: var(--sticker-sm); }
+.guide-tabs button { font-family: var(--display); font-weight: 700; font-size: 13px; padding: 6px 12px; background: var(--panel); color: var(--ink); border: 0; cursor: pointer; }
+.guide-tabs button.on { background: var(--orange); color: #fff; }
+.guide-dl { display: flex; gap: 8px; margin-left: auto; }
+.guide-dl a { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--teal-deep); background: var(--panel); border: 2px solid var(--ink); border-radius: 8px; padding: 4px 9px; text-decoration: none; box-shadow: var(--sticker-sm); }
+.guide-dl a:hover { transform: translate(-1px,-1px); }
+.guide-body { margin-top: 11px; padding-top: 11px; border-top: 1.5px dashed rgba(43,38,30,0.22); font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; }
+.guide-body h4 { margin: 0 0 6px; font-family: var(--display); font-size: 14.5px; color: var(--ink); }
+.guide-body ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+.guide-body b { color: var(--ink); }
+.guide-body code { font-family: var(--mono); font-size: 12px; background: rgba(43,38,30,0.07); padding: 1px 5px; border-radius: 5px; }
+.guide-body a { color: var(--teal-deep); font-weight: 700; }
+
 /* ---- walking cat (roams across the bottom of the screen) ---- */
 .walk-cat { position: fixed; bottom: 28px; left: 0; z-index: 60; pointer-events: none; width: 86px; will-change: transform; animation: catWalk 34s linear infinite; }
 .walk-cat .cat-body-bob { animation: catBob 0.6s ease-in-out infinite; transform-origin: 50% 100%; }

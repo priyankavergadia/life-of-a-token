@@ -126,8 +126,33 @@ status = "FAIL" if issues else "PASS"`,
     code: `# 🎓 Project 1 complete\n# Next: wrap process_audit() in FastAPI and ship a REST endpoint.`,
     explain: <p>Swap the image for invoices, passports, or insurance claims — the same pipeline reads, validates, and routes them at scale.</p> },
 ]
+const C1_GUIDE = {
+  files: { ipynb: 'project-llm-outputs.ipynb', py: 'project-llm-outputs.py' },
+  everyone: (
+    <>
+      <h4>🙂 For everyone</h4>
+      <ul>
+        <li>Make AI return <b>trustworthy data</b>, not a chatty paragraph — shown as a document auditor.</li>
+        <li>Add a key in the <b>⚡ Go live</b> bar (any provider). No key → demo.</li>
+        <li>Read <b>Schema</b> (the fields the AI must fill), then <b>upload a document</b> and click <b>Audit</b>.</li>
+        <li>The AI <b>reads</b> the image; plain rules <b>decide</b> PASS/FAIL — so the verdict is never made up.</li>
+      </ul>
+    </>
+  ),
+  developers: (
+    <>
+      <h4>👩‍💻 For developers</h4>
+      <ul>
+        <li>Download the <b>Notebook / Script</b> above (LangChain).</li>
+        <li>A Pydantic <code>ShippingDocument</code> + <code>with_structured_output</code> forces typed fields from a vision message.</li>
+        <li>Deterministic Python rules build the PASS/FAIL verdict — auditable, no hallucinated decisions.</li>
+        <li>Needs a vision-capable provider; keep <code>temperature=0</code> for extraction.</li>
+      </ul>
+    </>
+  ),
+}
 export function Capstone1({ creds, setCreds }) {
-  return <StepJourney steps={C1_STEPS} creds={creds} setCreds={setCreds} tagline="Project 1 — read a document, extract a schema, enforce policy, decide." />
+  return <StepJourney steps={C1_STEPS} creds={creds} setCreds={setCreds} guide={C1_GUIDE} tagline="Project 1 — read a document, extract a schema, enforce policy, decide." />
 }
 
 /* ============================================================
@@ -388,8 +413,33 @@ model.finetune(dataset, epochs=3)   # hours + $$$
     code: `# 🎓 Project 2 complete\n# Swap the policy list for a real PDF via PyPDFLoader + chunking.`,
     explain: <p>Point it at Confluence, contracts, or clinical guidelines — the same grounded-and-honest pattern scales to millions of pages.</p> },
 ]
+const C2_GUIDE = {
+  files: { ipynb: 'project-rag.ipynb', py: 'project-rag.py' },
+  everyone: (
+    <>
+      <h4>🙂 For everyone</h4>
+      <ul>
+        <li>Build an AI that answers <b>only</b> from approved docs — and <b>refuses</b> the rest.</li>
+        <li>Add a <b>Gemini or OpenAI</b> key in the ⚡ bar (search needs embeddings; Claude has none).</li>
+        <li><b>Edit or upload</b> your knowledge base, then ask questions — watch in-scope answered, out-of-scope refused.</li>
+        <li>Open <b>RAG vs Fine-tune</b>: RAG = new <i>facts</i>; fine-tuning = new <i>behaviour</i> (the cat voice).</li>
+      </ul>
+    </>
+  ),
+  developers: (
+    <>
+      <h4>👩‍💻 For developers</h4>
+      <ul>
+        <li>Download the <b>Notebook / Script</b> above (LangChain + FAISS).</li>
+        <li><code>FAISS.from_texts(...)</code> → <code>as_retriever(k=2)</code>; a strict system prompt enforces the exact refusal string.</li>
+        <li>Swap in chunked PDFs (<code>PyPDFLoader</code> + splitter); persist with <code>save_local</code>.</li>
+        <li>Fine-tuning cell shows the JSONL dataset shape — use it for tone/behaviour, RAG for facts.</li>
+      </ul>
+    </>
+  ),
+}
 export function Capstone2({ creds, setCreds }) {
-  return <StepJourney steps={C2_STEPS} creds={creds} setCreds={setCreds} tagline="Project 2 — strict RAG that answers from your docs, or honestly refuses." />
+  return <StepJourney steps={C2_STEPS} creds={creds} setCreds={setCreds} guide={C2_GUIDE} tagline="Project 2 — strict RAG that answers from your docs, or honestly refuses." />
 }
 
 /* ============================================================
@@ -491,8 +541,33 @@ result = agent_executor.invoke({"messages": [
     code: `# 🎓 Project 3 complete\n# Add check_inventory() or run_sql_query() to grow the toolkit.`,
     explain: <p>Give it <code>run_sql_query</code>, <code>restart_server</code>, or <code>get_exchange_rate</code> and the same loop powers text-to-SQL bots, DevOps remediation, and live auditors.</p> },
 ]
+const C3_GUIDE = {
+  files: { ipynb: 'project-tools.ipynb', py: 'project-tools.py' },
+  everyone: (
+    <>
+      <h4>🙂 For everyone</h4>
+      <ul>
+        <li>Turn an AI into a “digital worker” that <b>uses tools</b> and <b>chains steps</b>.</li>
+        <li>Add a key in the ⚡ bar (any provider). No key → demo trace.</li>
+        <li>See the two tools, then <b>edit the question</b> and click <b>Run the agent</b>.</li>
+        <li>Watch it fetch revenue <b>first</b>, then compute the margin <b>second</b> — math by code, never guessed.</li>
+      </ul>
+    </>
+  ),
+  developers: (
+    <>
+      <h4>👩‍💻 For developers</h4>
+      <ul>
+        <li>Download the <b>Notebook / Script</b> above (LangChain agents).</li>
+        <li>Two <code>@tool</code> functions; the <b>docstrings</b> are what the model reads to choose them.</li>
+        <li><code>create_tool_calling_agent</code> + <code>AgentExecutor(verbose=True)</code> — the prompt needs a <code>{'{agent_scratchpad}'}</code> placeholder.</li>
+        <li>Add tools (SQL, inventory, FX) to grow the toolkit; offloading math = 0% number hallucination.</li>
+      </ul>
+    </>
+  ),
+}
 export function Capstone3({ creds, setCreds }) {
-  return <StepJourney steps={C3_STEPS} creds={creds} setCreds={setCreds} tagline="Project 3 — an agent that uses tools to answer a real business question." />
+  return <StepJourney steps={C3_STEPS} creds={creds} setCreds={setCreds} guide={C3_GUIDE} tagline="Project 3 — an agent that uses tools to answer a real business question." />
 }
 
 /* ============================================================
@@ -600,6 +675,31 @@ payload = (prompt | structured_llm).invoke({...})
     code: `# 🎓 Project 4 complete — and you've finished the series!\n# Add a customer_persona field, or wire it to SendGrid to send live.`,
     explain: <p>The same pattern powers cold-email SDRs, dynamic push notifications, and SEO content factories — creative AI you can actually trust in production.</p> },
 ]
+const C4_GUIDE = {
+  files: { ipynb: 'project-personalization.ipynb', py: 'project-personalization.py' },
+  everyone: (
+    <>
+      <h4>🙂 For everyone</h4>
+      <ul>
+        <li>Generate a personalized marketing email — creative copy you can still trust.</li>
+        <li>Add a <b>Gemini or OpenAI</b> key in the ⚡ bar (matching needs embeddings).</li>
+        <li><b>Matchmaker:</b> edit what the customer bought and click <b>Match</b> to see related products.</li>
+        <li><b>Generate:</b> see the same result as a friendly email <i>and</i> the strict JSON behind it.</li>
+      </ul>
+    </>
+  ),
+  developers: (
+    <>
+      <h4>👩‍💻 For developers</h4>
+      <ul>
+        <li>Download the <b>Notebook / Script</b> above (LangChain + FAISS).</li>
+        <li>FAISS recommends top-k by meaning; a <code>MarketingEmail</code> Pydantic schema + <code>with_structured_output</code> at <code>temperature=0.8</code> keeps it creative but valid.</li>
+        <li>Pipe <code>model_dump()</code> straight into SendGrid/Mailchimp; add a <code>customer_persona</code> field to extend.</li>
+        <li>Needs Gemini or OpenAI for the embeddings step.</li>
+      </ul>
+    </>
+  ),
+}
 export function Capstone4({ creds, setCreds }) {
-  return <StepJourney steps={C4_STEPS} creds={creds} setCreds={setCreds} tagline="Project 4 — match by meaning, write creatively, lock it to strict JSON." />
+  return <StepJourney steps={C4_STEPS} creds={creds} setCreds={setCreds} guide={C4_GUIDE} tagline="Project 4 — match by meaning, write creatively, lock it to strict JSON." />
 }

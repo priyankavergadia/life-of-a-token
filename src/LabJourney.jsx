@@ -472,6 +472,32 @@ llm.invoke([message]).content   # → a written description`,
   },
 ]
 
+const GENAI_GUIDE = {
+  files: { ipynb: 'genai-lab.ipynb', py: 'genai-lab.py' },
+  everyone: (
+    <>
+      <h4>🙂 For everyone</h4>
+      <ul>
+        <li>Six core AI skills. The <b>left panel is real code</b>; the <b>right panel shows what it does</b>.</li>
+        <li>Paste a free API key in the <b>⚡ Go live</b> bar to “Run for real” — no key just shows demos.</li>
+        <li>Walk the steps: <b>Toggle</b> (swap vendors) → <b>Temperature</b> (drag the dials, Run 3×) → <b>Embeddings</b> → <b>RAG</b> → <b>Agents</b> → <b>Vision</b>.</li>
+        <li>Wherever you see “✎ editable”, change a value and re-run to see cause and effect.</li>
+      </ul>
+    </>
+  ),
+  developers: (
+    <>
+      <h4>👩‍💻 For developers</h4>
+      <ul>
+        <li>Grab the <b>Notebook / Script</b> above. It’s <b>LangChain</b> and model-agnostic.</li>
+        <li>Run the <b>Setup</b> cell: set <code>PROVIDER</code> (<code>gemini</code>/<code>openai</code>/<code>anthropic</code>) + your key; it defines <code>make_llm()</code> and <code>make_embeddings()</code>.</li>
+        <li>Each step maps to a notebook section: toggle, temperature (<code>top_p</code>/<code>top_k</code>), embeddings + cosine, RAG prompt, <code>create_tool_calling_agent</code>, vision message.</li>
+        <li>Embeddings labs need <b>Gemini or OpenAI</b> (Claude has no embeddings API).</li>
+      </ul>
+    </>
+  ),
+}
+
 export default function LabJourney({ creds, setCreds }) {
-  return <StepJourney steps={LAB_STEPS} creds={creds} setCreds={setCreds} tagline="A click-through tour of the foundations lab — see the code and run it live." />
+  return <StepJourney steps={LAB_STEPS} creds={creds} setCreds={setCreds} guide={GENAI_GUIDE} tagline="A click-through tour of the foundations lab — see the code and run it live." />
 }
