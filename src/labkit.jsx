@@ -33,6 +33,76 @@ export function CodeBlock({ code, file = 'lab.py' }) {
   )
 }
 
+/* ---------------- Editable code editor (highlight + edit, two-way) ----------
+   A transparent <textarea> sits exactly on top of a syntax-highlighted <pre>,
+   so the user edits real text while still seeing colors. The code string is the
+   single source of truth — interactive visuals parse values out of it and write
+   changes back, so the code panel and the controls stay mirrored. */
+export function EditableCode({ value, onChange, file = 'lab.py' }) {
+  return (
+    <div className="code-block editable">
+      <div className="code-bar">
+        <span className="cdot r" /><span className="cdot y" /><span className="cdot g" />
+        <span className="code-file">{file}</span>
+        <span className="code-edit-tag">✎ editable — change values, the demo follows</span>
+      </div>
+      <div className="code-edit-wrap">
+        <pre className="code-pre" aria-hidden="true"><code>{highlightPython(value)}{value.endsWith('\n') ? ' ' : ''}</code></pre>
+        <textarea
+          className="code-edit-ta code-pre"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          spellCheck={false}
+          autoCorrect="off"
+          autoCapitalize="off"
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ---------------- Code <-> params parse/rewrite helpers ----------------------
+   Tolerant regex helpers for the controlled snippets in this app. They read and
+   write simple `name = "..."` / `name = 1.0` assignments so editing a control
+   updates the code text, and editing the code updates the controls. */
+export function readStr(code, name, fallback = '') {
+  const m = code.match(new RegExp(name + '\\s*=\\s*(?:f\\s*)?(["\\\'])([\\s\\S]*?)\\1'))
+  return m ? m[2] : fallback
+}
+export function writeStr(code, name, val) {
+  const re = new RegExp('(' + name + '\\s*=\\s*(?:f\\s*)?")(?:[\\s\\S]*?)(")')
+  const re2 = new RegExp("(" + name + "\\s*=\\s*(?:f\\s*)?')(?:[\\s\\S]*?)(')")
+  const safe = String(val).replace(/"/g, '\\"')
+  if (re.test(code)) return code.replace(re, `$1${safe}$2`)
+  if (re2.test(code)) return code.replace(re2, `$1${String(val).replace(/'/g, "\\'")}$2`)
+  return code
+}
+export function readNum(code, name, fallback = 0) {
+  const m = code.match(new RegExp(name + '\\s*=\\s*(-?\\d+\\.?\\d*)'))
+  return m ? Number(m[1]) : fallback
+}
+export function writeNum(code, name, val) {
+  const re = new RegExp('(' + name + '\\s*=\\s*)(-?\\d+\\.?\\d*)')
+  if (re.test(code)) return code.replace(re, `$1${val}`)
+  return code
+}
+// Read a Python list literal of strings:  name = ["a", "b", ...]  →  ['a','b']
+export function readList(code, name) {
+  const m = code.match(new RegExp(name + '\\s*=\\s*\\[([\\s\\S]*?)\\]'))
+  if (!m) return null
+  const items = []
+  const re = /(["\'])([\s\S]*?)\1/g
+  let it
+  while ((it = re.exec(m[1]))) items.push(it[2])
+  return items
+}
+export function writeList(code, name, arr) {
+  const re = new RegExp('(' + name + '\\s*=\\s*\\[)[\\s\\S]*?(\\])')
+  const body = arr.map((s) => `\n  "${String(s).replace(/"/g, '\\"')}",`).join('') + '\n'
+  if (re.test(code)) return code.replace(re, `$1${body}$2`)
+  return code
+}
+
 /* ---------------- Live-call helpers ---------------- */
 export const Reveal = ({ children, d = 0 }) => (
   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: d, duration: 0.35 }}>{children}</motion.div>
@@ -94,6 +164,8 @@ export function ConnectBar({ creds, setCreds }) {
    Each step's Visual receives { creds } (liveCreds). */
 export function StepJourney({ steps, creds, setCreds, tagline }) {
   const [step, setStep] = useState(0)
+  const [codeMap, setCodeMap] = useState({})
+  const [shared, setShared] = useState({}) // cross-step state (e.g. an edited knowledge base)
   const live = liveCredsOf(creds)
   useEffect(() => {
     const onKey = (e) => {
@@ -107,6 +179,11 @@ export function StepJourney({ steps, creds, setCreds, tagline }) {
   }, [steps.length])
   const cur = steps[step]
   const Visual = cur.Visual
+  const code = codeMap[cur.id] ?? cur.code
+  const setCode = (next) => setCodeMap((m) => {
+    const prev = m[cur.id] ?? cur.code
+    return { ...m, [cur.id]: typeof next === 'function' ? next(prev) : next }
+  })
 
   return (
     <>
@@ -135,12 +212,14 @@ export function StepJourney({ steps, creds, setCreds, tagline }) {
 
       <div className="lab-stage">
         <motion.div key={cur.id + '-c'} className="panel code-panel" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
-          <div className="panel-cap">📄 The code</div>
-          <CodeBlock code={cur.code} file={cur.file} />
+          <div className="panel-cap">📄 The code {cur.editable && <span className="cap-live">· editable</span>}</div>
+          {cur.editable
+            ? <EditableCode value={code} onChange={setCode} file={cur.file} />
+            : <CodeBlock code={cur.code} file={cur.file} />}
         </motion.div>
         <motion.div key={cur.id + '-v'} className="panel viz lab-visual" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
           <div className="panel-cap">✨ What it does {live.connected && <span className="cap-live">· live on {PROVIDERS[live.provider].label}</span>}</div>
-          <Visual creds={live} />
+          <Visual creds={live} code={code} setCode={setCode} shared={shared} setShared={setShared} />
           <div className="lab-explain">{cur.explain}</div>
         </motion.div>
       </div>

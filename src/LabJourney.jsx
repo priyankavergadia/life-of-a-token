@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowDoodle } from './Doodles.jsx'
 import { PROVIDERS, chat, embed, chatWithImage, runAgent, cosine, mds2d } from './llm.js'
-import { Reveal, useRun, Spinner, LiveErr, LiveBadge, NeedKey, StepJourney } from './labkit.jsx'
+import { Reveal, useRun, Spinner, LiveErr, LiveBadge, NeedKey, StepJourney, readStr, readNum, writeStr, writeNum, readList, writeList } from './labkit.jsx'
 
 /* ============================================================
    VISUALS — one per lab (each accepts `creds`)
@@ -59,61 +59,87 @@ function V_Toggle({ creds }) {
   )
 }
 
-function V_Temperature({ creds }) {
-  const cold = 'Brewed for the bold future.'
-  const hots = ['Sip tomorrow, brewed today.', 'Caffeine from another galaxy.', 'Where robots pour poetry.', 'Espresso at light speed.', 'Your daily dose of the future.']
-  const [i, setI] = useState(0)
-  const [prompt, setPrompt] = useState('Write a 5-word tagline for a futuristic coffee shop.')
+const TEMP_DEMO = {
+  low: ['Brewed for the bold future.', 'Brewed for the bold future.', 'Brewed for the bold future.'],
+  mid: ['Sip tomorrow, brewed today.', 'Caffeine from another galaxy.', 'Espresso at light speed.'],
+  high: ['Quantum beans, cosmic dreams!', 'Wormhole roast, zero foam ghost.', 'Sip the singularity, darling.'],
+}
+function V_Temperature({ creds, code, setCode }) {
+  const prompt = readStr(code, 'prompt', 'Write a 5-word tagline for a futuristic coffee shop.')
+  const temperature = readNum(code, 'temperature', 1.0)
+  const topP = readNum(code, 'top_p', 0.95)
+  const topK = readNum(code, 'top_k', 40)
+  const [useP, setUseP] = useState(true)
+  const [useK, setUseK] = useState(true)
+  const [demoSeed, setDemoSeed] = useState(0)
   const [s, run] = useRun()
+  const noK = creds.provider === 'openai' // OpenAI API has no top_k
 
-  const goLive = () => run(async () => {
-    const [c, ...h] = await Promise.all([
-      chat(creds.provider, creds.key, { prompt, temperature: 0, maxTokens: 40 }),
-      chat(creds.provider, creds.key, { prompt, temperature: 1, maxTokens: 40 }),
-      chat(creds.provider, creds.key, { prompt, temperature: 1, maxTokens: 40 }),
-      chat(creds.provider, creds.key, { prompt, temperature: 1, maxTokens: 40 }),
-    ])
-    return { cold: c, hots: h }
-  })
+  const setPrompt = (v) => setCode((c) => writeStr(c, 'prompt', v))
+  const setT = (v) => setCode((c) => writeNum(c, 'temperature', v))
+  const setP = (v) => setCode((c) => writeNum(c, 'top_p', v))
+  const setK = (v) => setCode((c) => writeNum(c, 'top_k', v))
+
+  const goLive = () => run(async () => Promise.all([0, 1, 2].map(() => chat(creds.provider, creds.key, {
+    prompt, temperature, maxTokens: 40,
+    ...(useP ? { topP } : {}),
+    ...(useK && !noK ? { topK } : {}),
+  }))))
 
   const live = s.data
-  const coldOut = live ? live.cold : cold
-  const hotOut = (n) => (live ? live.hots[n] : hots[(i + n) % hots.length])
+  const bucket = temperature < 0.2 ? 'low' : temperature < 0.9 ? 'mid' : 'high'
+  const demo = bucket === 'low' ? TEMP_DEMO.low : TEMP_DEMO[bucket].map((t, n) => TEMP_DEMO[bucket][(n + demoSeed) % 3])
+  const outs = live || demo
 
   return (
     <div>
       <div className="temp-prompt">prompt:
-        <input className="inline-input" value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={s.loading} />
+        <input className="inline-input" style={{ maxWidth: '100%' }} value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={s.loading} />
       </div>
-      <div className="temp-cols">
-        <div className="temp-col cold">
-          <div className="temp-h">❄️ Temperature 0.0 {live && <LiveBadge />}</div>
-          <div className="temp-sub">deterministic · same answer every run</div>
-          {[0, 1, 2].map((n) => <div key={n} className="temp-out">{s.loading ? '…' : coldOut}</div>)}
+
+      <div className="knob-row">
+        <div className="knob">
+          <span className="knob-label">🌡️ temp</span>
+          <input type="range" min="0" max="2" step="0.05" value={temperature} onChange={(e) => setT(Number(e.target.value))} disabled={s.loading} />
+          <span className="knob-val">{temperature.toFixed(2)}</span>
         </div>
-        <div className="temp-col hot">
-          <div className="temp-h">🔥 Temperature 1.0 {live && <LiveBadge />}</div>
-          <div className="temp-sub">creative · changes every run</div>
-          {[0, 1, 2].map((n) => <div key={n} className="temp-out">{s.loading ? '…' : hotOut(n)}</div>)}
+        <div className={`knob ${useP ? '' : 'off'}`}>
+          <span className="knob-label"><input type="checkbox" className="knob-toggle" checked={useP} onChange={(e) => setUseP(e.target.checked)} /> top-p</span>
+          <input type="range" min="0" max="1" step="0.01" value={topP} onChange={(e) => setP(Number(e.target.value))} disabled={s.loading || !useP} />
+          <span className="knob-val">{topP.toFixed(2)}</span>
+        </div>
+        <div className={`knob ${useK && !noK ? '' : 'off'}`}>
+          <span className="knob-label"><input type="checkbox" className="knob-toggle" checked={useK && !noK} onChange={(e) => setUseK(e.target.checked)} disabled={noK} /> top-k</span>
+          {noK
+            ? <span className="knob-na" style={{ gridColumn: '2 / span 2' }}>— OpenAI API has no top-k —</span>
+            : <><input type="range" min="1" max="100" step="1" value={topK} onChange={(e) => setK(Number(e.target.value))} disabled={s.loading || !useK} /><span className="knob-val">{topK}</span></>}
         </div>
       </div>
+
+      <div className="temp-col">
+        <div className="temp-h">🎲 Same prompt, 3 runs @ temp {temperature.toFixed(2)} {live && <LiveBadge />}</div>
+        <div className="temp-sub">{temperature < 0.2 ? 'low temp → nearly identical every run' : temperature < 0.9 ? 'medium temp → some variation' : 'high temp → wildly different each run'}</div>
+        {outs.map((o, n) => <div key={n} className="temp-out">{s.loading ? '…' : o}</div>)}
+      </div>
+
       {s.error && <LiveErr msg={s.error} />}
       <div className="run-row">
         {creds.connected
-          ? <button className="lab-run" onClick={goLive} disabled={s.loading}>{s.loading ? <><Spinner /> calling {PROVIDERS[creds.provider].label}…</> : '⚡ Run for real'}</button>
-          : <button className="lab-run" onClick={() => setI((v) => (v + 3) % hots.length)}>🎲 Run again (demo)</button>}
+          ? <button className="lab-run" onClick={goLive} disabled={s.loading}>{s.loading ? <><Spinner /> calling {PROVIDERS[creds.provider].label}…</> : '⚡ Run 3× for real'}</button>
+          : <button className="lab-run" onClick={() => setDemoSeed((v) => v + 1)}>🎲 Run again (demo)</button>}
       </div>
       {!creds.connected && <NeedKey connected={false} />}
     </div>
   )
 }
 
-function V_Embeddings({ creds }) {
+function V_Embeddings({ creds, code, setCode }) {
   const demoPts = [
     { w: 'Cat', x: -0.48, y: 0.32, c: '#2e9bd6' }, { w: 'Feline', x: -0.2, y: 0.52, c: '#2e9bd6' },
     { w: 'Stock Market', x: 0.5, y: -0.46, c: '#f2553d' }, { w: 'Investment', x: 0.28, y: -0.26, c: '#f2553d' },
   ]
-  const [wordsStr, setWordsStr] = useState('Cat, Feline, Stock Market, Investment')
+  const wordsStr = (readList(code, 'words') || ['Cat', 'Feline', 'Stock Market', 'Investment']).join(', ')
+  const setWordsStr = (v) => setCode((c) => writeList(c, 'words', v.split(',').map((w) => w.trim()).filter(Boolean)))
   const [s, run] = useRun()
   const noEmbed = !PROVIDERS[creds.provider]?.embeds
 
@@ -168,11 +194,13 @@ function V_Embeddings({ creds }) {
   )
 }
 
-function V_RAG({ creds }) {
+function V_RAG({ creds, code, setCode }) {
+  const question = readStr(code, 'question', 'What is the guest Wi-Fi password for Acme Corp?')
+  const context = readStr(code, 'context', "Acme Corp IT Policy: guest network is 'Acme_Guest', current password is 'P@ssw0rd2026!'.")
+  const setQuestion = (v) => setCode((c) => writeStr(c, 'question', v))
+  const setContext = (v) => setCode((c) => writeStr(c, 'context', v))
   const [ctx, setCtx] = useState(false)
   const [s, run] = useRun()
-  const question = 'What is the guest Wi-Fi password for Acme Corp?'
-  const context = "Acme Corp IT Policy: guest network is 'Acme_Guest', current password is 'P@ssw0rd2026!'."
 
   const goLive = () => run(async () => {
     const [no, yes] = await Promise.all([
@@ -182,22 +210,24 @@ function V_RAG({ creds }) {
     return { no, yes }
   })
   const live = s.data
-  const showGood = live ? true : ctx
   const answer = live ? (ctx ? live.yes : live.no) : (ctx ? 'The guest network is “Acme_Guest” and the password is “P@ssw0rd2026!”.' : 'It might be “password123” or “guestwifi”… (the model is making this up.)')
 
   return (
     <div>
-      <div className="rag-q">❓ “{question}”</div>
-      <AnimatePresence mode="wait">
-        {ctx && <motion.div className="rag-ctx" key="ctx" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>📋 <b>Injected context:</b> {context}</motion.div>}
-      </AnimatePresence>
-      <div className={`rag-answer ${ctx ? 'good' : 'bad'}`}>
+      <div className="input-tag">❓ question</div>
+      <input className="inline-input" style={{ maxWidth: '100%' }} value={question} onChange={(e) => setQuestion(e.target.value)} disabled={s.loading} />
+
+      <div className="input-tag">📋 your private facts (context)
+        <label className="knob-label" style={{ fontWeight: 600, marginLeft: 'auto' }}><input type="checkbox" className="knob-toggle" checked={ctx} onChange={(e) => setCtx(e.target.checked)} /> inject into prompt</label>
+      </div>
+      <textarea className="kb-edit" value={context} onChange={(e) => setContext(e.target.value)} disabled={s.loading} />
+
+      <div className={`rag-answer ${ctx ? 'good' : 'bad'}`} style={{ marginTop: 14 }}>
         <div className="rag-a-h">{ctx ? '✅ With context' : '❌ No context → guesses'} {live && <LiveBadge />}</div>
         <div className="rag-a-body">{s.loading ? '…thinking…' : answer}</div>
       </div>
       {s.error && <LiveErr msg={s.error} />}
       <div className="run-row">
-        <button className="lab-run ghost" onClick={() => setCtx((c) => !c)}>{ctx ? '↩︎ Remove context' : '📋 Inject the facts'}</button>
         {creds.connected && <button className="lab-run" onClick={goLive} disabled={s.loading}>{s.loading ? <><Spinner /> asking…</> : '⚡ Ask for real (both)'}</button>}
       </div>
       {!creds.connected && <NeedKey connected={false} />}
@@ -211,10 +241,11 @@ const DEMO_AGENT = [
   { t: '👀 Observe', d: 'tool returns → “Shipping to Paris: $22.50”', c: '#2e9bd6' },
   { t: '✅ Answer', d: '“It costs $22.50 to ship a 5 kg box to Paris.”', c: '#15b3a4' },
 ]
-function V_Agents({ creds }) {
+function V_Agents({ creds, code, setCode }) {
   const [phase, setPhase] = useState(-1)
   const [s, run] = useRun()
-  const query = 'How much to ship a 5 kg box to Paris?'
+  const query = readStr(code, 'query', 'How much to ship a 5 kg box to Paris?')
+  const setQuery = (v) => setCode((c) => writeStr(c, 'query', v))
 
   const goLive = () => run(async () => {
     const r = await runAgent(creds.provider, creds.key, query)
@@ -231,8 +262,9 @@ function V_Agents({ creds }) {
 
   return (
     <div>
-      <div className="agent-q">🙋 “{query}”</div>
-      <div className="agent-flow">
+      <div className="input-tag">🙋 ask the agent (it has one tool: <code>calculate_shipping_cost</code>)</div>
+      <input className="inline-input" style={{ maxWidth: '100%' }} value={query} onChange={(e) => setQuery(e.target.value)} disabled={s.loading} />
+      <div className="agent-flow" style={{ marginTop: 14 }}>
         {steps.map((st, i) => (
           <div key={i} className={`agent-step ${allOn || phase >= i ? 'on' : ''}`} style={(allOn || phase >= i) ? { borderColor: st.c } : {}}>
             <div className="agent-step-t" style={(allOn || phase >= i) ? { color: st.c } : {}}>{st.t} {live && i === 3 && <LiveBadge />}</div>
@@ -345,20 +377,24 @@ answer = llm.invoke(prompt)`,
   },
   {
     id: 'temp', tab: 'Temperature', kicker: 'Lab 1 · The Physics of LLMs', title: 'The creativity dial', file: 'lab1_temperature.py',
-    pose: 'think', color: '#f47b20', Visual: V_Temperature,
-    code: `# Same prompt, two "personalities" via Temperature
-llm_cold = ChatGoogleGenerativeAI(temperature=0.0)
-llm_hot  = ChatGoogleGenerativeAI(temperature=1.0)
+    pose: 'think', color: '#f47b20', Visual: V_Temperature, editable: true,
+    code: `# Sampling knobs — edit the values or drag the sliders →
+prompt = "Write a 5-word tagline for a futuristic coffee shop."
 
-prompt = "Write a 5-word tagline for a coffee shop."
+temperature = 1.0   # 0 = deterministic · higher = more random
+top_p = 0.95        # nucleus: keep tokens until cumulative prob >= top_p
+top_k = 40          # only sample from the K most likely tokens
 
-llm_cold.invoke(prompt)  # ❄️ steady, repeatable
-llm_hot.invoke(prompt)   # 🔥 different every time`,
-    explain: <><p>LLMs don’t look up facts — they <b>predict the next word by probability</b>. <b>Temperature</b> is the dial on that randomness.</p><div className="note analogy"><b>0.0</b> = factual & rigid. <b>1.0</b> = creative & wild. <b>Run it for real →</b> watch temp 1.0 change every time.</div></>,
+# run the SAME prompt 3 times and watch it vary
+for _ in range(3):
+    print(llm.invoke(prompt,
+                     temperature=temperature,
+                     top_p=top_p, top_k=top_k))`,
+    explain: <><p>LLMs don’t look up facts — they <b>predict the next word by probability</b>. <b>Temperature</b>, <b>Top-P</b> and <b>Top-K</b> are three dials on that randomness.</p><div className="note analogy"><b>Temp 0</b> = factual & rigid. <b>Top-P/Top-K</b> shrink the pool of words it’s allowed to pick. <b>Drag the dials and run for real →</b> watch the 3 runs diverge or lock together.</div></>,
   },
   {
     id: 'embed', tab: 'Embeddings', kicker: 'Lab 2 · The Embedding Explorer', title: 'Words become numbers', file: 'lab2_embeddings.py',
-    pose: 'point', color: '#2e9bd6', Visual: V_Embeddings,
+    pose: 'point', color: '#2e9bd6', Visual: V_Embeddings, editable: true,
     code: `words = ["Cat", "Feline", "Stock Market", "Investment"]
 vectors = embedder.embed_documents(words)  # → numbers
 
@@ -369,8 +405,8 @@ cosine_similarity([vectors[0]], [vectors[2]])  # Cat·Stocks → 0.18`,
   },
   {
     id: 'rag', tab: 'Context / RAG', kicker: 'Lab 3 · The Control Room', title: 'Fixing the amnesiac genius', file: 'lab3_rag.py',
-    pose: 'think', color: '#8a5cf0', Visual: V_RAG,
-    code: `question = "What's the guest Wi-Fi password?"
+    pose: 'think', color: '#8a5cf0', Visual: V_RAG, editable: true,
+    code: `question = "What is the guest Wi-Fi password for Acme Corp?"
 
 # ❌ No context → the model guesses (hallucinates)
 llm.invoke(question)
@@ -387,7 +423,7 @@ prompt = ChatPromptTemplate.from_messages([
   },
   {
     id: 'agents', tab: 'Agents', kicker: 'Lab 4 · Your First Agent', title: 'From talking to doing', file: 'lab4_agents.py',
-    pose: 'cheer', color: '#15b3a4', Visual: V_Agents,
+    pose: 'cheer', color: '#15b3a4', Visual: V_Agents, editable: true,
     code: `# A "tool" is just a Python function the AI can call
 @tool
 def calculate_shipping_cost(weight_kg, destination):
@@ -397,7 +433,8 @@ def calculate_shipping_cost(weight_kg, destination):
 agent = create_tool_calling_agent(llm, [calculate_shipping_cost], prompt)
 executor = AgentExecutor(agent=agent, tools=[calculate_shipping_cost])
 
-executor.invoke({"input": "Ship a 5kg box to Paris?"})
+query = "How much to ship a 5 kg box to Paris?"
+executor.invoke({"input": query})
 # → the agent calls the tool, then answers`,
     explain: <><p>A chatbot generates text; an <b>agent executes</b>. You hand the LLM <b>tools</b> and it decides when to use them — reason, act, observe, answer.</p><div className="note"><b>Run the agent for real →</b> watch the actual model pick the tool and fill in the arguments.</div></>,
   },

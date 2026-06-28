@@ -8,10 +8,10 @@ import { useCreds } from './labkit.jsx'
 const VIEWS = [
   { id: 'token', label: 'Life of a Token', icon: '🔤', group: 'Learn' },
   { id: 'lab', label: 'GenAI Lab', icon: '🧪', group: 'Learn' },
-  { id: 'c1', label: 'Visual Auditor', icon: '🛡️', group: 'Capstones' },
-  { id: 'c2', label: 'Knowledge Oracle', icon: '📚', group: 'Capstones' },
-  { id: 'c3', label: 'Data Analyst', icon: '🤖', group: 'Capstones' },
-  { id: 'c4', label: 'Personalization', icon: '📧', group: 'Capstones' },
+  { id: 'c1', label: 'LLM Outputs', icon: '🛡️', group: 'Projects' },
+  { id: 'c2', label: 'RAG', icon: '📚', group: 'Projects' },
+  { id: 'c3', label: 'Tools', icon: '🤖', group: 'Projects' },
+  { id: 'c4', label: 'Personalization', icon: '📧', group: 'Projects' },
 ]
 
 export default function App() {
@@ -30,7 +30,7 @@ export default function App() {
     }
   }
 
-  const groups = ['Learn', 'Capstones']
+  const groups = ['Learn', 'Projects']
 
   return (
     <div className="app">
