@@ -1,7 +1,7 @@
 # Vibe Coding — For Developers
 
-A developer's playbook for the **Vibe Code Your Business: AI App Build**
-assignment (OIDD 6670): how to go from a plan to a live, deployed app — fast,
+A developer's playbook for the **Vibe Code Your Business Idea**
+assignment: how to go from a plan to a live, deployed app — fast,
 without over-building.
 
 👉 **In-app guide:** https://priyankavergadia.github.io/life-of-a-token/#/vibe-coding
