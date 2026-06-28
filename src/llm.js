@@ -259,3 +259,142 @@ function jacobiEigen(Ain) {
   }
   return { values: A.map((r, i) => r[i]), vectors: V }
 }
+
+/* ============================================================
+   Structured output (JSON) + vision-to-JSON + multi-tool agent
+   ============================================================ */
+export function parseJSON(text) {
+  if (!text) throw new Error('Empty response')
+  let t = text.trim()
+  // strip ```json fences
+  t = t.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
+  // grab the outermost {...}
+  const a = t.indexOf('{'), b = t.lastIndexOf('}')
+  if (a >= 0 && b > a) t = t.slice(a, b + 1)
+  return JSON.parse(t)
+}
+
+// Chat that returns parsed JSON. Caller describes the shape in `prompt`/`system`.
+export async function chatJSON(provider, key, { system, prompt, temperature = 0.4, maxTokens = 500 }) {
+  if (provider === 'gemini') {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature, maxOutputTokens: maxTokens, response_mime_type: 'application/json' } }
+    if (system) body.systemInstruction = { parts: [{ text: system }] }
+    const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
+    return parseJSON((j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join(''))
+  }
+  if (provider === 'openai') {
+    const messages = []
+    if (system) messages.push({ role: 'system', content: system })
+    messages.push({ role: 'user', content: prompt })
+    const j = await asJson(await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model: PROVIDERS.openai.model, messages, temperature, max_tokens: maxTokens, response_format: { type: 'json_object' } }),
+    }))
+    return parseJSON(j.choices?.[0]?.message?.content || '')
+  }
+  if (provider === 'anthropic') {
+    const j = await asJson(await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: PROVIDERS.anthropic.model, max_tokens: maxTokens, temperature, system: (system || '') + '\nRespond with ONLY a single valid JSON object, no prose, no markdown.', messages: [{ role: 'user', content: prompt }] }),
+    }))
+    return parseJSON((j.content || []).map((b) => b.text || '').join(''))
+  }
+  throw new Error('Unknown provider')
+}
+
+// Vision → structured JSON (image in, parsed object out).
+export async function visionJSON(provider, key, { prompt, base64, mime = 'image/png' }) {
+  if (provider === 'gemini') {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }], generationConfig: { temperature: 0, response_mime_type: 'application/json' } }
+    const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
+    return parseJSON((j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join(''))
+  }
+  if (provider === 'openai') {
+    const j = await asJson(await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model: PROVIDERS.openai.model, max_tokens: 500, response_format: { type: 'json_object' }, messages: [{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } }] }] }),
+    }))
+    return parseJSON(j.choices?.[0]?.message?.content || '')
+  }
+  if (provider === 'anthropic') {
+    const j = await asJson(await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: PROVIDERS.anthropic.model, max_tokens: 500, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: mime, data: base64 } }, { type: 'text', text: prompt + '\nRespond with ONLY a single valid JSON object.' }] }] }),
+    }))
+    return parseJSON((j.content || []).map((b) => b.text || '').join(''))
+  }
+  throw new Error('Unknown provider')
+}
+
+// Generic multi-tool agent loop. tools: [{name, description, properties, required, fn}]
+// fn(args) -> string. Returns { trace: [{name,args,result}], answer }.
+export async function runAgentMulti(provider, key, query, tools, system, maxRounds = 5) {
+  const byName = Object.fromEntries(tools.map((t) => [t.name, t]))
+  const trace = []
+
+  if (provider === 'gemini') {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
+    const decls = tools.map((t) => ({ name: t.name, description: t.description, parameters: { type: 'object', properties: t.properties, required: t.required || [] } }))
+    const contents = [{ role: 'user', parts: [{ text: query }] }]
+    const base = { tools: [{ function_declarations: decls }] }
+    if (system) base.systemInstruction = { parts: [{ text: system }] }
+    for (let r = 0; r < maxRounds; r++) {
+      const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, contents }) }))
+      const parts = j.candidates?.[0]?.content?.parts || []
+      const calls = parts.filter((p) => p.functionCall).map((p) => p.functionCall)
+      if (!calls.length) return { trace, answer: parts.map((p) => p.text || '').join('').trim() }
+      contents.push({ role: 'model', parts: calls.map((c) => ({ functionCall: c })) })
+      const respParts = []
+      for (const c of calls) {
+        const result = String(byName[c.name].fn(c.args))
+        trace.push({ name: c.name, args: c.args, result })
+        respParts.push({ functionResponse: { name: c.name, response: { result } } })
+      }
+      contents.push({ role: 'user', parts: respParts })
+    }
+    return { trace, answer: '(stopped after max rounds)' }
+  }
+
+  if (provider === 'openai') {
+    const oaTools = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: { type: 'object', properties: t.properties, required: t.required || [] } } }))
+    const messages = []
+    if (system) messages.push({ role: 'system', content: system })
+    messages.push({ role: 'user', content: query })
+    for (let r = 0; r < maxRounds; r++) {
+      const j = await asJson(await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ model: PROVIDERS.openai.model, messages, tools: oaTools }) }))
+      const msg = j.choices?.[0]?.message
+      if (!msg?.tool_calls?.length) return { trace, answer: (msg?.content || '').trim() }
+      messages.push(msg)
+      for (const call of msg.tool_calls) {
+        const args = JSON.parse(call.function.arguments || '{}')
+        const result = String(byName[call.function.name].fn(args))
+        trace.push({ name: call.function.name, args, result })
+        messages.push({ role: 'tool', tool_call_id: call.id, content: result })
+      }
+    }
+    return { trace, answer: '(stopped after max rounds)' }
+  }
+
+  if (provider === 'anthropic') {
+    const headers = { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }
+    const anTools = tools.map((t) => ({ name: t.name, description: t.description, input_schema: { type: 'object', properties: t.properties, required: t.required || [] } }))
+    const messages = [{ role: 'user', content: query }]
+    for (let r = 0; r < maxRounds; r++) {
+      const j = await asJson(await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers, body: JSON.stringify({ model: PROVIDERS.anthropic.model, max_tokens: 600, system: system || undefined, tools: anTools, messages }) }))
+      const uses = (j.content || []).filter((b) => b.type === 'tool_use')
+      if (!uses.length) return { trace, answer: (j.content || []).map((b) => b.text || '').join('').trim() }
+      messages.push({ role: 'assistant', content: j.content })
+      const results = []
+      for (const u of uses) {
+        const result = String(byName[u.name].fn(u.input))
+        trace.push({ name: u.name, args: u.input, result })
+        results.push({ type: 'tool_result', tool_use_id: u.id, content: result })
+      }
+      messages.push({ role: 'user', content: results })
+    }
+    return { trace, answer: '(stopped after max rounds)' }
+  }
+  throw new Error('Unknown provider')
+}
