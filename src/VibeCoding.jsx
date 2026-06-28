@@ -267,7 +267,7 @@ export default function VibeCoding() {
         <div className="mascot">
           <StickFigure pose="wave" color="#ffc02e" size={74} />
           <div>
-            <div className="kicker">Group exercise · Vibe Code Your Business Idea</div>
+            <div className="kicker">Vibe Code Your Business Idea</div>
             <h1>Vibe Coding with Best Practices</h1>
             <p>Plan it like a product owner, prompt it in stages, and ship a real, live app.</p>
           </div>
