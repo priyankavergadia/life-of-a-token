@@ -39,12 +39,27 @@ async function asJson(r) {
 }
 
 /* ---------------------------------------------------------------- CHAT (text) */
-export async function chat(provider, key, { system, prompt, temperature = 0.7, maxTokens = 300 }) {
+// Build a Gemini generationConfig. We disable "thinking" (thinkingBudget: 0) so
+// the model spends its whole token budget on the visible answer — otherwise
+// gemini-2.5-flash can burn a small maxOutputTokens entirely on hidden thinking
+// and return an empty response (the source of the blank/errored Gemini calls).
+function geminiGenConfig({ temperature, maxTokens, topP, topK }) {
+  const cfg = { temperature, maxOutputTokens: maxTokens, thinkingConfig: { thinkingBudget: 0 } }
+  if (topP != null) cfg.topP = topP
+  if (topK != null) cfg.topK = topK
+  return cfg
+}
+
+// Sampling knobs are shared across providers, but support differs:
+//   • temperature → all three
+//   • topP        → all three
+//   • topK        → Gemini & Anthropic only (OpenAI's API has no top_k)
+export async function chat(provider, key, { system, prompt, temperature = 0.7, maxTokens = 300, topP, topK }) {
   if (provider === 'gemini') {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
     const body = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature, maxOutputTokens: maxTokens },
+      generationConfig: geminiGenConfig({ temperature, maxTokens, topP, topK }),
     }
     if (system) body.systemInstruction = { parts: [{ text: system }] }
     const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
@@ -54,14 +69,19 @@ export async function chat(provider, key, { system, prompt, temperature = 0.7, m
     const messages = []
     if (system) messages.push({ role: 'system', content: system })
     messages.push({ role: 'user', content: prompt })
+    const body = { model: PROVIDERS.openai.model, messages, temperature, max_tokens: maxTokens }
+    if (topP != null) body.top_p = topP   // OpenAI supports top_p but not top_k
     const j = await asJson(await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model: PROVIDERS.openai.model, messages, temperature, max_tokens: maxTokens }),
+      body: JSON.stringify(body),
     }))
     return (j.choices?.[0]?.message?.content || '').trim()
   }
   if (provider === 'anthropic') {
+    const body = { model: PROVIDERS.anthropic.model, max_tokens: maxTokens, temperature, system: system || undefined, messages: [{ role: 'user', content: prompt }] }
+    if (topP != null) body.top_p = topP
+    if (topK != null) body.top_k = topK
     const j = await asJson(await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -70,7 +90,7 @@ export async function chat(provider, key, { system, prompt, temperature = 0.7, m
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true',
       },
-      body: JSON.stringify({ model: PROVIDERS.anthropic.model, max_tokens: maxTokens, temperature, system: system || undefined, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify(body),
     }))
     return (j.content || []).map((b) => b.text || '').join('').trim()
   }
@@ -278,7 +298,7 @@ export function parseJSON(text) {
 export async function chatJSON(provider, key, { system, prompt, temperature = 0.4, maxTokens = 500 }) {
   if (provider === 'gemini') {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
-    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature, maxOutputTokens: maxTokens, response_mime_type: 'application/json' } }
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature, maxOutputTokens: maxTokens, response_mime_type: 'application/json', thinkingConfig: { thinkingBudget: 0 } } }
     if (system) body.systemInstruction = { parts: [{ text: system }] }
     const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
     return parseJSON((j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join(''))
@@ -307,7 +327,7 @@ export async function chatJSON(provider, key, { system, prompt, temperature = 0.
 export async function visionJSON(provider, key, { prompt, base64, mime = 'image/png' }) {
   if (provider === 'gemini') {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
-    const body = { contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }], generationConfig: { temperature: 0, response_mime_type: 'application/json' } }
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }], generationConfig: { temperature: 0, response_mime_type: 'application/json', thinkingConfig: { thinkingBudget: 0 } } }
     const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
     return parseJSON((j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join(''))
   }

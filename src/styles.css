@@ -391,6 +391,51 @@ button { font-family: inherit; cursor: pointer; }
 .c-deco { color: #e6b85c; font-weight: 600; }
 .c-plain { color: #e8e0d0; }
 
+/* ---- editable code (transparent textarea over highlighted pre) ---- */
+.code-edit-tag { font-family: var(--mono); font-size: 10.5px; color: #ffd27a; margin-left: auto; opacity: 0.85; white-space: nowrap; }
+.code-edit-wrap { position: relative; flex: 1; display: flex; }
+.code-edit-wrap .code-pre { flex: 1; pointer-events: none; min-height: 100%; }
+.code-edit-ta {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: 0; resize: none; overflow: auto;
+  background: transparent; color: transparent; caret-color: #ffd27a;
+  white-space: pre; outline: none;
+}
+.code-edit-ta::selection { background: rgba(255,210,122,0.28); }
+.code-block.editable { border-color: #ffd27a; box-shadow: 4px 5px 0 rgba(255,210,122,0.35); }
+
+/* ---- sampling controls (temperature / top-p / top-k) ---- */
+.knob-row { display: flex; flex-direction: column; gap: 13px; margin: 4px 0 16px; }
+.knob { display: grid; grid-template-columns: 92px 1fr 56px; align-items: center; gap: 12px; }
+.knob.off { opacity: 0.4; }
+.knob-label { font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.knob-toggle { cursor: pointer; }
+.knob input[type=range] { width: 100%; accent-color: var(--orange); cursor: pointer; }
+.knob input[type=range]:disabled { cursor: default; }
+.knob-val { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--orange); text-align: right; }
+.knob-na { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); justify-self: end; }
+.knob-hint { font-size: 11.5px; color: var(--text-faint); margin: -2px 0 2px 104px; }
+
+/* ---- editable knowledge base / inputs ---- */
+.kb-edit { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--ink); background: var(--panel); border: 2.2px solid var(--ink); border-radius: 10px; padding: 10px 12px; outline: none; resize: vertical; min-height: 92px; }
+.kb-edit:focus { border-color: var(--orange); }
+.input-tag { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin: 12px 0 5px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.mini-up { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--teal-deep); background: var(--panel); border: 2px solid var(--ink); border-radius: 8px; padding: 3px 9px; cursor: pointer; box-shadow: var(--sticker-sm); }
+.mini-up:hover { transform: translate(-1px,-1px); }
+
+/* ---- RAG vs fine-tuning interactive ---- */
+.vs-toggle { display: inline-flex; border: 2.4px solid var(--ink); border-radius: 11px; overflow: hidden; box-shadow: var(--sticker-sm); margin-bottom: 14px; }
+.vs-toggle button { font-family: var(--display); font-size: 14px; font-weight: 700; padding: 8px 16px; background: var(--panel); color: var(--ink); border: 0; cursor: pointer; }
+.vs-toggle button.on.rag { background: #8a5cf0; color: #fff; }
+.vs-toggle button.on.ft { background: var(--orange); color: #fff; }
+.vs-stage { border: 2.4px solid var(--ink); border-radius: 13px; padding: 14px; background: var(--panel); box-shadow: var(--sticker-sm); }
+.vs-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.vs-chip { font-family: var(--mono); font-size: 11.5px; font-weight: 700; padding: 6px 10px; border: 2px solid var(--ink); border-radius: 9px; background: #fff; }
+.vs-chip.hot { background: #ffe1d3; }
+.vs-chip.cool { background: #e7defb; }
+.vs-arrow { color: var(--text-faint); font-weight: 700; }
+.vs-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 10px; line-height: 1.5; }
+
 /* ---- Lab visuals ---- */
 .lab-run {
   font-family: var(--hand); font-size: 18px; font-weight: 700; color: var(--ink); margin-top: 14px;
