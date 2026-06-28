@@ -1,8 +1,8 @@
-# The Life of a Query 🪐
+# The Life of a Token 🪐
 
 An interactive, visual walkthrough of how a large language model (like Claude) turns your words into an answer. Built for curious non-engineers — real mechanisms, plain language, no dumbing-down.
 
-You type any query and click step-by-step through the transformer pipeline. **Every visual recomputes from your actual words.**
+You type any prompt and click step-by-step through the transformer pipeline, following a token from raw text to a predicted next word. **Every visual recomputes from your actual words.**
 
 ## The journey
 1. **Start** — the big picture
@@ -24,7 +24,7 @@ Build a static version with `npm run build` (output in `dist/`).
 
 ## Navigation
 - Click the numbered steps, or use the **← / →** arrow keys.
-- Edit the query box and hit **Trace it** (or Enter), or click an example chip.
+- Edit the input box and hit **Trace it** (or Enter), or click an example chip.
 
 ## How honest is the model?
 The architecture and *shape* of every computation is real — tokenization into subwords, embeddings, sinusoidal positions, causal masked self-attention with multiple heads, a 4×-wide feed-forward MLP with a GELU nonlinearity, residual stacking, and softmax over a vocabulary. The **weights** are hand-built heuristics (see `src/engine.js`) chosen to be believable and to teach the right intuition — not trained parameters. The goal is understanding, not GPT-scale accuracy.

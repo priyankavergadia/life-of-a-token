@@ -14,11 +14,11 @@ const POSE_COLORS = ['#ffc02e', '#f47b20', '#15b3a4', '#2e9bd6', '#8a5cf0', '#f4
 const STEPS = [
   {
     id: 'intro', tab: 'Start', kicker: 'The journey',
-    title: 'The life of a query',
+    title: 'The life of a token',
     body: (
       <>
         <p>This is what happens <b>under the hood</b> when you send a message to an LLM like Claude. No magic, no database lookup — just numbers flowing through the same handful of operations, repeated at enormous scale.</p>
-        <p>Use the steps at the top, or the arrows below, to follow your query from raw text all the way to a predicted next word.</p>
+        <p>Use the steps at the top, or the arrows below, to follow your words from raw text all the way to a predicted next word.</p>
         <div className="note analogy"><b>Mental model:</b> think of it as an assembly line. Each station transforms the words a little more, and information flows forward until a confident answer pops out the end.</div>
       </>
     ),
@@ -161,7 +161,7 @@ export default function App() {
             <SunDoodle size={52} />
           </div>
           <div>
-            <h1>The Life of a Query</h1>
+            <h1>The Life of a Token</h1>
             <div className="sub">How a large language model turns your words into an answer</div>
           </div>
         </div>

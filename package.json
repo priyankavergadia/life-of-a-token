@@ -1,9 +1,9 @@
 {
-  "name": "life-of-a-query",
+  "name": "life-of-a-token",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "An interactive, step-by-step visual journey through a transformer LLM — the life of a query to Claude.",
+  "description": "An interactive, step-by-step visual journey through a transformer LLM — the life of a token inside Claude.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

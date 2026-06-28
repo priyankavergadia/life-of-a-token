@@ -471,7 +471,7 @@ export function IntroView() {
         </motion.div>
       </div>
       <div className="note analogy">
-        <b>Try it:</b> change the query up top to anything you like, then walk through the steps.
+        <b>Try it:</b> change the prompt up top to anything you like, then walk through the steps.
         Every visual recomputes from your actual words.
       </div>
     </div>
