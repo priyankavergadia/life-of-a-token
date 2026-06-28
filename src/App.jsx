@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { SketchDefs, SunDoodle, WalkingCat } from './Doodles.jsx'
+import { SketchDefs, WalkingCat, CloudGirlLogo, CloudDoodle } from './Doodles.jsx'
 import TokenJourney from './TokenJourney.jsx'
 import LabJourney from './LabJourney.jsx'
 import { Capstone1, Capstone2, Capstone3, Capstone4 } from './capstones.jsx'
@@ -54,7 +54,7 @@ export default function App() {
     }
   }
 
-  const groups = ['Learn', 'Build', 'Projects']
+  const groups = ['Learn', 'Projects', 'Build']
 
   return (
     <div className="app">
@@ -62,11 +62,13 @@ export default function App() {
       <WalkingCat />
 
       <div className="topbar">
+        <span className="cloud-deco cd1"><CloudDoodle size={74} /></span>
+        <span className="cloud-deco cd2"><CloudDoodle size={48} /></span>
         <div className="brand">
-          <div className="logo"><SunDoodle size={52} /></div>
-          <div>
+          <CloudGirlLogo size={52} />
+          <div className="brand-text">
             <h1>AI, Visually</h1>
-            <div className="sub">Interactive explainers for how AI really works · by The Cloud Girl</div>
+            <div className="sub">Interactive explainers for how AI really works · by <b>The Cloud Girl</b></div>
           </div>
         </div>
         <div className="view-tabs">
