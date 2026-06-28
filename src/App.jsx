@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { SketchDefs, SunDoodle } from './Doodles.jsx'
+import { SketchDefs, SunDoodle, WalkingCat } from './Doodles.jsx'
 import TokenJourney from './TokenJourney.jsx'
 import LabJourney from './LabJourney.jsx'
 import { Capstone1, Capstone2, Capstone3, Capstone4 } from './capstones.jsx'
@@ -35,6 +35,7 @@ export default function App() {
   return (
     <div className="app">
       <SketchDefs />
+      <WalkingCat />
 
       <div className="topbar">
         <div className="brand">

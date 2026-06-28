@@ -236,54 +236,96 @@ function V_C2_RAG({ creds, shared, code, setCode }) {
     </div>
   )
 }
-// Interactive RAG vs Fine-tuning: a fact changes TODAY — watch RAG adapt instantly
-// while a fine-tuned model keeps answering with its stale, baked-in knowledge.
+// Interactive RAG vs Fine-tuning — two DIFFERENT jobs, side by side:
+//  • RAG changes KNOWLEDGE: a fact updates today → RAG answers fresh.
+//  • Fine-tuning changes BEHAVIOUR: train on 1000s of tone examples → the model
+//    permanently answers in a new voice (here: a funny, cat-like personality).
 const C2_NEW_FACT = 'As of today, the laptop upgrade cycle changed from every 3 years to every 2 years.'
+const CAT_DATASET = [
+  { u: 'Your order has shipped.', a: 'Pounce! 📦 your order is on the prowl and headed your way, meow~ 😺' },
+  { u: 'The meeting is at 3pm.', a: 'Psst 🐱 meeting at 3 — I’ll be loafing nearby for moral support. 😼' },
+  { u: 'Please reset your password.', a: 'Just paw at “Forgot password,” hooman 🐾 — no hairballs involved! 😸' },
+  { u: 'Remember to drink water.', a: 'Lap it up! 💧 stay hydrated like a dignified house panther, meow. 🐈' },
+]
+const CAT_SYSTEM = 'You are a playful house-cat assistant. Always reply in a short, funny, cat-like voice — cat puns, “meow”, and a paw/cat emoji. Keep it to one or two sentences.'
 function V_C2_VS({ creds }) {
   const [mode, setMode] = useState('rag')
   const [s, run] = useRun()
-  const q = 'How often can I upgrade my laptop?'
-
-  const goLive = () => run(async () => {
-    if (mode === 'ft') return { answer: 'Every 3 years. (this is baked into my weights — I was trained before the change)', stale: true }
-    const ans = await chat(creds.provider, creds.key, { system: `Answer using ONLY this context. If unknown, say so.\nContext: ${C2_NEW_FACT}`, prompt: q, temperature: 0 })
-    return { answer: ans, stale: false }
-  })
-  const live = s.data
   const isRag = mode === 'rag'
-  const demoAnswer = isRag ? 'Every 2 years — the policy was updated today. (read live from the docs)' : 'Every 3 years. (baked into the weights at training time — now stale)'
-  const answer = live ? live.answer : demoAnswer
+
+  const ragQ = 'How often can I upgrade my laptop?'
+  const ftQ = 'Can you remind me to stretch?'
+
+  const runRag = () => run(async () => ({ answer: await chat(creds.provider, creds.key, { system: `Answer using ONLY this context. If unknown, say so.\nContext: ${C2_NEW_FACT}`, prompt: ragQ, temperature: 0 }) }))
+  // "Simulate" the fine-tuned voice live by steering tone with a system prompt,
+  // alongside the plain base answer — so you can hear the behaviour change.
+  const runFt = () => run(async () => {
+    const [base, tuned] = await Promise.all([
+      chat(creds.provider, creds.key, { prompt: ftQ, temperature: 0.4, maxTokens: 60 }),
+      chat(creds.provider, creds.key, { system: CAT_SYSTEM, prompt: ftQ, temperature: 0.9, maxTokens: 60 }),
+    ])
+    return { base, tuned }
+  })
+
+  const live = s.data
+  const ragAnswer = live?.answer || 'Every 2 years — the policy was updated today. (read live from the docs)'
+  const baseDemo = 'Sure — try to stand up and stretch every 30 minutes or so.'
+  const tunedDemo = 'Meow~ 🐾 time for a big cat stretch, hooman! Arch that back and reach those paws. 😸'
 
   return (
     <div>
       <div className="vs-toggle">
-        <button className={`rag ${isRag ? 'on' : ''}`} onClick={() => setMode('rag')}>📚 RAG</button>
-        <button className={`ft ${!isRag ? 'on' : ''}`} onClick={() => setMode('ft')}>🧬 Fine-tuning</button>
+        <button className={`rag ${isRag ? 'on' : ''}`} onClick={() => setMode('rag')}>📚 RAG · new knowledge</button>
+        <button className={`ft ${!isRag ? 'on' : ''}`} onClick={() => setMode('ft')}>🧬 Fine-tuning · new behaviour</button>
       </div>
-      <div className="rag-q">🗓️ A fact changes today: “{C2_NEW_FACT}”</div>
-      <div className="vs-stage">
-        <div className="vs-flow">
-          {isRag
-            ? <><span className="vs-chip cool">✏️ edit the doc</span><span className="vs-arrow">→</span><span className="vs-chip cool">🔍 retrieve</span><span className="vs-arrow">→</span><span className="vs-chip cool">✅ fresh answer</span></>
-            : <><span className="vs-chip hot">📝 collect 1000s of examples</span><span className="vs-arrow">→</span><span className="vs-chip hot">🧬 retrain (hours/$$$)</span><span className="vs-arrow">→</span><span className="vs-chip hot">🚀 redeploy</span></>}
-        </div>
-        <div className="rag-q" style={{ marginTop: 0 }}>❓ “{q}”</div>
-        <div className={`rag-answer ${isRag ? 'good' : 'bad'}`}>
-          <div className="rag-a-h">{isRag ? '✅ RAG — up to date' : '⚠️ Fine-tuned — stale until retrained'} {live && <LiveBadge />}</div>
-          <div className="rag-a-body">{s.loading ? '…thinking…' : answer}</div>
-        </div>
-        <div className="vs-note">{isRag
-          ? <><b>RAG updates in seconds:</b> just edit the source text. The model reads the new fact at question-time, so today’s change shows up immediately.</>
-          : <><b>Fine-tuning bakes knowledge into the weights.</b> To reflect today’s change you’d have to gather examples and retrain — so it stays stale in between. Great for <i>behavior/tone</i>, wrong tool for <i>fast-changing facts</i>.</>}</div>
-      </div>
-      {s.error && <LiveErr msg={s.error} />}
-      <div className="run-row">
-        {creds.connected && isRag && <RunBtn creds={creds} onClick={goLive} loading={s.loading} label="🔎 Answer with RAG for real" />}
-        {!isRag && <button className="lab-run ghost" onClick={() => run(async () => ({ answer: 'Every 3 years. (baked into my weights — I was trained before the change)', stale: true }))}>🧬 Ask the fine-tuned model</button>}
-      </div>
+
+      {isRag ? (
+        <>
+          <div className="rag-q">🗓️ A fact changes today: “{C2_NEW_FACT}”</div>
+          <div className="vs-stage">
+            <div className="vs-flow"><span className="vs-chip cool">✏️ edit the doc</span><span className="vs-arrow">→</span><span className="vs-chip cool">🔍 retrieve</span><span className="vs-arrow">→</span><span className="vs-chip cool">✅ fresh answer</span></div>
+            <div className="rag-q" style={{ marginTop: 0 }}>❓ “{ragQ}”</div>
+            <div className="rag-answer good">
+              <div className="rag-a-h">✅ RAG — up to date {live && <LiveBadge />}</div>
+              <div className="rag-a-body">{s.loading ? '…retrieving…' : ragAnswer}</div>
+            </div>
+            <div className="vs-note"><b>RAG updates in seconds</b> — just edit the source text. The model reads the new fact at question-time, so today’s change shows up immediately. It does <i>not</i> change <i>how</i> the model talks.</div>
+          </div>
+          {s.error && <LiveErr msg={s.error} />}
+          <div className="run-row">{creds.connected && <RunBtn creds={creds} onClick={runRag} loading={s.loading} label="🔎 Answer with RAG for real" />}</div>
+        </>
+      ) : (
+        <>
+          <div className="rag-q">🎯 Goal: give the model a <b>funny, cat-like personality</b> — train on 1000s of tone examples.</div>
+          <div className="vs-stage">
+            <div className="vs-flow"><span className="vs-chip hot">📝 1000s of tone examples</span><span className="vs-arrow">→</span><span className="vs-chip hot">🧬 fine-tune (hours/$$$)</span><span className="vs-arrow">→</span><span className="vs-chip hot">🐱 new voice baked in</span></div>
+            <div className="section-title" style={{ marginTop: 4 }}>🗂️ training data · sample of ~5,000 pairs</div>
+            {CAT_DATASET.map((d, i) => (
+              <div className="ft-pair" key={i}>
+                <div className="ft-in">plain: “{d.u}”</div>
+                <div className="ft-out">🐾 cat: “{d.a}”</div>
+              </div>
+            ))}
+            <div className="rag-q" style={{ marginTop: 12 }}>❓ “{ftQ}”</div>
+            <div className="rag-answer" style={{ background: '#f4f0ff', borderColor: '#8a5cf0' }}>
+              <div className="rag-a-h">😐 Base model (before)</div>
+              <div className="rag-a-body">{s.loading ? '…' : (live?.base || baseDemo)}</div>
+            </div>
+            <div className="rag-answer good" style={{ marginTop: 8 }}>
+              <div className="rag-a-h">😸 Fine-tuned model (after) {live && <LiveBadge />}</div>
+              <div className="rag-a-body">{s.loading ? '…meow…' : (live?.tuned || tunedDemo)}</div>
+            </div>
+            <div className="vs-note"><b>Fine-tuning changes behaviour, permanently.</b> After training, the cat voice is baked into the weights — every answer comes out playful, with no extra instructions at runtime. RAG can’t do this: it adds facts, not a personality.</div>
+          </div>
+          {s.error && <LiveErr msg={s.error} />}
+          <div className="run-row">{creds.connected && <RunBtn creds={creds} onClick={runFt} loading={s.loading} label="😺 Hear the tone change for real" />}</div>
+          <div className="fade-key">Live preview steers the tone with a system prompt as a stand-in — real fine-tuning bakes it into the model so it always sounds like this.</div>
+        </>
+      )}
+
       <div className="matrix" style={{ marginTop: 16 }}>
         <div className="mx-head"><div /><div className="mx-c rag">📚 RAG</div><div className="mx-c ft">🧬 Fine-tuning</div></div>
-        {[['Goal', 'Access dynamic / external data', 'Teach style, tone & behavior'], ['Update speed', 'Instant (edit the data)', 'Slow (recompile + retrain)'], ['Best at', 'Grounding in source text', 'Enforcing safety & format'], ['Cost', 'Token overhead per call', 'High upfront, cheap inference']].map((r, i) => <div className="mx-row" key={i}><div className="mx-dim">{r[0]}</div><div className="mx-c">{r[1]}</div><div className="mx-c">{r[2]}</div></div>)}
+        {[['Changes', 'What it KNOWS (facts)', 'How it BEHAVES (tone/style)'], ['Update speed', 'Instant (edit the data)', 'Slow (retrain hours/$$$)'], ['Best at', 'Fresh, private facts', 'Personality, format, guardrails'], ['Our demo', 'New laptop policy today', 'A funny cat voice']].map((r, i) => <div className="mx-row" key={i}><div className="mx-dim">{r[0]}</div><div className="mx-c">{r[1]}</div><div className="mx-c">{r[2]}</div></div>)}
       </div>
     </div>
   )
@@ -320,19 +362,28 @@ answer = (prompt | llm).invoke({
     "question": question })`,
     explain: <><p>Top-2 matching policies are pasted into the prompt; the strict system instruction makes the model <b>refuse</b> anything else — even jailbreak attempts.</p><div className="note"><b>Try each question for real →</b> watch in-domain succeed and out-of-domain get refused.</div></> },
   { id: 'm', tab: 'RAG vs Fine-tune', kicker: 'Step 3 · Level up', title: 'Two ways to steer a model', file: 'rag_vs_finetune.py', pose: 'point', color: '#f47b20', Visual: V_C2_VS, editable: true,
-    code: `# Two ways to teach a model — same goal, very different cost.
+    code: `# Two different jobs — knowledge vs behaviour.
 
-# ── RAG: keep facts OUTSIDE the model, look them up at runtime ──
+# ── RAG: add new FACTS (look them up at runtime) ──
 context = retriever.invoke(question)        # fetch fresh docs
 answer  = (prompt | llm).invoke({"context": context,
                                  "question": question})
 # Update a fact? Just edit the document. Live in seconds.
 
-# ── Fine-tuning: bake behavior INTO the weights (offline) ──
-dataset = [{"prompt": p, "completion": c} for p, c in examples]
-model.finetune(dataset, epochs=3)           # hours + $$$
-# Update a fact? Re-collect data and retrain. Slow.`,
-    explain: <><p>RAG and fine-tuning solve different problems. <b>Toggle the two on the right →</b> watch RAG pick up today’s change instantly while the fine-tuned model stays stale until it’s retrained.</p><div className="note">Real systems often use <b>both</b> — RAG for fresh facts, fine-tuning for baked-in tone & guardrails.</div></> },
+# ── Fine-tuning: change the model's VOICE (bake into weights) ──
+# Thousands of examples teaching a funny, cat-like personality:
+dataset = [
+  {"messages": [{"role": "user", "content": "Your order has shipped."},
+                {"role": "assistant",
+                 "content": "Pounce! 📦 it's on the prowl, meow~ 😺"}]},
+  {"messages": [{"role": "user", "content": "The meeting is at 3pm."},
+                {"role": "assistant",
+                 "content": "Psst 🐱 3pm — I'll be loafing nearby. 😼"}]},
+  # ... ~5,000 more pairs ...
+]
+model.finetune(dataset, epochs=3)   # hours + $$$
+# Now it ALWAYS talks like a cat — no runtime instructions needed.`,
+    explain: <><p>RAG and fine-tuning solve <b>different</b> problems. <b>Toggle the two on the right →</b> RAG injects a fresh <i>fact</i>; fine-tuning rewrites the model’s <i>personality</i> (here, a funny cat voice) by training on thousands of examples.</p><div className="note">Real systems often use <b>both</b> — RAG for fresh facts, fine-tuning for baked-in tone & guardrails.</div></> },
   { id: 'd', tab: 'Recap', kicker: 'Done', title: 'A trustworthy Oracle', file: 'done.py', pose: 'cheer', color: '#ffc02e', Visual: () => <div className="recap"><Reveal><div className="recap-row"><span className="recap-check">✓</span> Vector search (semantic, not keyword)</div></Reveal><Reveal d={0.1}><div className="recap-row"><span className="recap-check">✓</span> Grounded answers from your docs</div></Reveal><Reveal d={0.2}><div className="recap-row"><span className="recap-check">✓</span> Refuses out-of-bounds questions</div></Reveal><Reveal d={0.4}><div className="recap-done">🎓 Hallucination risk → controlled.</div></Reveal></div>,
     code: `# 🎓 Project 2 complete\n# Swap the policy list for a real PDF via PyPDFLoader + chunking.`,
     explain: <p>Point it at Confluence, contracts, or clinical guidelines — the same grounded-and-honest pattern scales to millions of pages.</p> },
