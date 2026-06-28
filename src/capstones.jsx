@@ -143,7 +143,7 @@ const C1_GUIDE = {
     <>
       <h4>👩‍💻 For developers</h4>
       <ul>
-        <li>Download the <b>Notebook / Script</b> above (LangChain).</li>
+        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain.</li>
         <li>A Pydantic <code>ShippingDocument</code> + <code>with_structured_output</code> forces typed fields from a vision message.</li>
         <li>Deterministic Python rules build the PASS/FAIL verdict — auditable, no hallucinated decisions.</li>
         <li>Needs a vision-capable provider; keep <code>temperature=0</code> for extraction.</li>
@@ -430,7 +430,7 @@ const C2_GUIDE = {
     <>
       <h4>👩‍💻 For developers</h4>
       <ul>
-        <li>Download the <b>Notebook / Script</b> above (LangChain + FAISS).</li>
+        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain + FAISS.</li>
         <li><code>FAISS.from_texts(...)</code> → <code>as_retriever(k=2)</code>; a strict system prompt enforces the exact refusal string.</li>
         <li>Swap in chunked PDFs (<code>PyPDFLoader</code> + splitter); persist with <code>save_local</code>.</li>
         <li>Fine-tuning cell shows the JSONL dataset shape — use it for tone/behaviour, RAG for facts.</li>
@@ -558,7 +558,7 @@ const C3_GUIDE = {
     <>
       <h4>👩‍💻 For developers</h4>
       <ul>
-        <li>Download the <b>Notebook / Script</b> above (LangChain agents).</li>
+        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain agents.</li>
         <li>Two <code>@tool</code> functions; the <b>docstrings</b> are what the model reads to choose them.</li>
         <li><code>create_tool_calling_agent</code> + <code>AgentExecutor(verbose=True)</code> — the prompt needs a <code>{'{agent_scratchpad}'}</code> placeholder.</li>
         <li>Add tools (SQL, inventory, FX) to grow the toolkit; offloading math = 0% number hallucination.</li>
@@ -692,7 +692,7 @@ const C4_GUIDE = {
     <>
       <h4>👩‍💻 For developers</h4>
       <ul>
-        <li>Download the <b>Notebook / Script</b> above (LangChain + FAISS).</li>
+        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. LangChain + FAISS.</li>
         <li>FAISS recommends top-k by meaning; a <code>MarketingEmail</code> Pydantic schema + <code>with_structured_output</code> at <code>temperature=0.8</code> keeps it creative but valid.</li>
         <li>Pipe <code>model_dump()</code> straight into SendGrid/Mailchimp; add a <code>customer_persona</code> field to extend.</li>
         <li>Needs Gemini or OpenAI for the embeddings step.</li>

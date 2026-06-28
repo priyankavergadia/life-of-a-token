@@ -9,9 +9,31 @@ margin math) and an `AgentExecutor` that chains them.
 
 ---
 
-## Prerequisites
-- Python 3.10+, an API key for any provider (tool-calling supported on all three).
-- Install via the setup cell.
+## Run it — two ways
+
+### ▶ Option A — Open in Google Colab (zero setup)
+1. Open: https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-tools.ipynb
+   (or click **🚀 Open in Colab** in the app's *For developers* panel).
+2. Run the first cell (`%pip install …`) — Colab installs everything.
+3. Set `PROVIDER` (any of Gemini / OpenAI / Anthropic — tool-calling works on all) and paste your key.
+4. Run top to bottom.
+
+### 💻 Option B — Local Python
+1. Python 3.10+. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate          # Windows: .venv\Scripts\activate
+   ```
+2. Install the dependencies:
+   ```bash
+   pip install langchain langchain-core langchain-community langchain-google-genai langchain-openai langchain-anthropic faiss-cpu numpy
+   ```
+3. Run it as a **notebook** or a **script**:
+   ```bash
+   pip install jupyterlab && jupyter lab project-tools.ipynb   # notebook
+   python project-tools.py                                     # script
+   ```
+4. Set `PROVIDER` + paste your key (any provider works).
 
 ## Flow
 1. **Setup** — `PROVIDER` + key.

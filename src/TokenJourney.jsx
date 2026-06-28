@@ -25,7 +25,7 @@ const TOKEN_GUIDE = {
     <>
       <h4>👩‍💻 For developers</h4>
       <ul>
-        <li><b>Open in Colab</b> (or download) to run the <i>same</i> journey on a real model (GPT-2) in code.</li>
+        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — runs the <i>same</i> journey on a real model (GPT-2) in code.</li>
         <li>Every step is a small function: <code>tokenize()</code> → token/positional embeddings (<code>wte</code>/<code>wpe</code>) → attention matrices → per-layer hidden states → softmax over the vocab for the next token.</li>
         <li>Uses <code>transformers</code> + <code>torch</code>; change the <code>TEXT</code> variable and re-run to inspect any prompt.</li>
         <li>Shows the real causal mask, cosine similarity between tokens, and a greedy continuation.</li>

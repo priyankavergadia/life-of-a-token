@@ -489,7 +489,7 @@ const GENAI_GUIDE = {
     <>
       <h4>👩‍💻 For developers</h4>
       <ul>
-        <li>Grab the <b>Notebook / Script</b> above. It’s <b>LangChain</b> and model-agnostic.</li>
+        <li><b>Two ways to run:</b> 🚀 <b>Open in Colab</b> (zero setup) or local Python (<code>venv</code> + <code>pip install</code>) — see the <i>for-developers</i> doc. It’s <b>LangChain</b> and model-agnostic.</li>
         <li>Run the <b>Setup</b> cell: set <code>PROVIDER</code> (<code>gemini</code>/<code>openai</code>/<code>anthropic</code>) + your key; it defines <code>make_llm()</code> and <code>make_embeddings()</code>.</li>
         <li>Each step maps to a notebook section: toggle, temperature (<code>top_p</code>/<code>top_k</code>), embeddings + cosine, RAG prompt, <code>create_tool_calling_agent</code>, vision message.</li>
         <li>Embeddings labs need <b>Gemini or OpenAI</b> (Claude has no embeddings API).</li>
