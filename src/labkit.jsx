@@ -154,6 +154,20 @@ export function ConnectBar({ creds, setCreds }) {
           ? <><span className="cb-ok">✓ connected</span><button className="cb-clear" onClick={() => setCreds({ ...creds, keys: { ...creds.keys, [creds.provider]: '' } })}>clear</button></>
           : <a className="cb-getkey" href={p.keyUrl} target="_blank" rel="noreferrer">get a key ↗</a>}
       </div>
+      {!connected && (
+        <div className="cb-help">
+          🔑 <b>You'll need a free API key</b> from one provider to run these labs for real (no key = demo mode).
+          <details className="cb-getlinks">
+            <summary>How do I get one?</summary>
+            <ul>
+              <li><b>Google Gemini</b> (easiest free tier) — <a href={PROVIDERS.gemini.keyUrl} target="_blank" rel="noreferrer">aistudio.google.com/apikey ↗</a> → sign in → <b>Create API key</b></li>
+              <li><b>OpenAI (GPT)</b> — <a href={PROVIDERS.openai.keyUrl} target="_blank" rel="noreferrer">platform.openai.com/api-keys ↗</a> → <b>Create new secret key</b></li>
+              <li><b>Anthropic (Claude)</b> — <a href={PROVIDERS.anthropic.keyUrl} target="_blank" rel="noreferrer">console.anthropic.com/settings/keys ↗</a> → <b>Create Key</b></li>
+            </ul>
+            Copy it, then paste it into the bar above. Embeddings-based labs (Embeddings, RAG, matching) need <b>Gemini</b> or <b>OpenAI</b> — Claude has no embeddings API.
+          </details>
+        </div>
+      )}
       <div className="cb-note">🔒 Your key is stored <b>only in this browser</b> and sent <b>directly to {p.label}</b> — it never touches our servers. {!p.embeds && <span> · note: Claude has no embeddings API (embedding-based labs need Gemini or OpenAI).</span>}</div>
     </div>
   )
