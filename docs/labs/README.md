@@ -15,6 +15,7 @@ variable between Gemini, OpenAI, and Claude.
 | Project: RAG | [for-everyone](rag-for-everyone.md) | [for-developers](rag-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-rag.ipynb) | [.ipynb](../../public/labs/project-rag.ipynb) · [.py](../../public/labs/project-rag.py) |
 | Project: Tools | [for-everyone](tools-for-everyone.md) | [for-developers](tools-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-tools.ipynb) | [.ipynb](../../public/labs/project-tools.ipynb) · [.py](../../public/labs/project-tools.py) |
 | Project: Personalization | [for-everyone](personalization-for-everyone.md) | [for-developers](personalization-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-personalization.ipynb) | [.ipynb](../../public/labs/project-personalization.ipynb) · [.py](../../public/labs/project-personalization.py) |
+| Vibe Coding (assignment) | [for-everyone](vibe-coding-for-everyone.md) | [for-developers](vibe-coding-for-developers.md) | — | — *(guide, no notebook)* |
 
 ### Direct download links (from the live site)
 
