@@ -446,12 +446,12 @@ button { font-family: inherit; cursor: pointer; }
 @media (max-width: 520px) { .ft-pair { grid-template-columns: 1fr; } }
 
 /* ---- walking cat (roams across the bottom of the screen) ---- */
-.walk-cat { position: fixed; bottom: 6px; left: 0; z-index: 60; pointer-events: none; width: 86px; will-change: transform; animation: catWalk 22s linear infinite; }
-.walk-cat .cat-body-bob { animation: catBob 0.42s ease-in-out infinite; transform-origin: 50% 100%; }
-.walk-cat .cat-tail { animation: catTail 0.9s ease-in-out infinite; transform-box: view-box; transform-origin: 14px 26px; }
+.walk-cat { position: fixed; bottom: 28px; left: 0; z-index: 60; pointer-events: none; width: 86px; will-change: transform; animation: catWalk 34s linear infinite; }
+.walk-cat .cat-body-bob { animation: catBob 0.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.walk-cat .cat-tail { animation: catTail 1.3s ease-in-out infinite; transform-box: view-box; transform-origin: 14px 26px; }
 .walk-cat .cat-leg { transform-box: fill-box; transform-origin: 50% 0%; }
-.walk-cat .leg-a { animation: catLegA 0.42s ease-in-out infinite; }
-.walk-cat .leg-b { animation: catLegB 0.42s ease-in-out infinite; }
+.walk-cat .leg-a { animation: catLegA 0.6s ease-in-out infinite; }
+.walk-cat .leg-b { animation: catLegB 0.6s ease-in-out infinite; }
 @keyframes catWalk {
   0%   { transform: translateX(-130px); }
   42%  { transform: translateX(calc(100vw + 40px)); }
