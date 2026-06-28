@@ -7,13 +7,14 @@ and a technical *for developers* guide.
 All code is **LangChain-based** and **model-agnostic** — flip a `PROVIDER`
 variable between Gemini, OpenAI, and Claude.
 
-| Section | For everyone | For developers | Download code |
-|---|---|---|---|
-| GenAI Lab (6 labs) | [for-everyone](genai-lab-for-everyone.md) | [for-developers](genai-lab-for-developers.md) | [.py](../../public/labs/genai-lab.py) · [.ipynb](../../public/labs/genai-lab.ipynb) |
-| Project: LLM Outputs | [for-everyone](llm-outputs-for-everyone.md) | [for-developers](llm-outputs-for-developers.md) | [.py](../../public/labs/project-llm-outputs.py) · [.ipynb](../../public/labs/project-llm-outputs.ipynb) |
-| Project: RAG | [for-everyone](rag-for-everyone.md) | [for-developers](rag-for-developers.md) | [.py](../../public/labs/project-rag.py) · [.ipynb](../../public/labs/project-rag.ipynb) |
-| Project: Tools | [for-everyone](tools-for-everyone.md) | [for-developers](tools-for-developers.md) | [.py](../../public/labs/project-tools.py) · [.ipynb](../../public/labs/project-tools.ipynb) |
-| Project: Personalization | [for-everyone](personalization-for-everyone.md) | [for-developers](personalization-for-developers.md) | [.py](../../public/labs/project-personalization.py) · [.ipynb](../../public/labs/project-personalization.ipynb) |
+| Section | For everyone | For developers | Open in Colab | Download |
+|---|---|---|---|---|
+| Life of a Token | [for-everyone](life-of-a-token-for-everyone.md) | [for-developers](life-of-a-token-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/life-of-a-token.ipynb) | [.ipynb](../../public/labs/life-of-a-token.ipynb) · [.py](../../public/labs/life-of-a-token.py) |
+| GenAI Lab (6 labs) | [for-everyone](genai-lab-for-everyone.md) | [for-developers](genai-lab-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/genai-lab.ipynb) | [.ipynb](../../public/labs/genai-lab.ipynb) · [.py](../../public/labs/genai-lab.py) |
+| Project: LLM Outputs | [for-everyone](llm-outputs-for-everyone.md) | [for-developers](llm-outputs-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-llm-outputs.ipynb) | [.ipynb](../../public/labs/project-llm-outputs.ipynb) · [.py](../../public/labs/project-llm-outputs.py) |
+| Project: RAG | [for-everyone](rag-for-everyone.md) | [for-developers](rag-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-rag.ipynb) | [.ipynb](../../public/labs/project-rag.ipynb) · [.py](../../public/labs/project-rag.py) |
+| Project: Tools | [for-everyone](tools-for-everyone.md) | [for-developers](tools-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-tools.ipynb) | [.ipynb](../../public/labs/project-tools.ipynb) · [.py](../../public/labs/project-tools.py) |
+| Project: Personalization | [for-everyone](personalization-for-everyone.md) | [for-developers](personalization-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-personalization.ipynb) | [.ipynb](../../public/labs/project-personalization.ipynb) · [.py](../../public/labs/project-personalization.py) |
 
 ### Direct download links (from the live site)
 
