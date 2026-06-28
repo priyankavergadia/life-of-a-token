@@ -257,6 +257,74 @@ function ProjectCreation() {
 }
 
 /* ============================================================
+   Loop Engineering (for developers)
+   Inspired by Cobus Greyling's "Loop Engineering" — design loops that prompt
+   your agents, instead of prompting agents by hand.
+   ============================================================ */
+const LOOP_ANATOMY = ['⏱ Schedule', '👁 Triage', '📋 State', '🌲 Worktree', '⚙️ Implement', '✓ Verify', '🔗 PR / MCP', '🧑 Human gate']
+const LOOP_PRIMS = [
+  { t: 'Scheduling', d: 'Triggers via cron, automations, or a manual /loop command.' },
+  { t: 'Worktrees', d: 'Parallel runs in isolated git worktrees — no collisions.' },
+  { t: 'Skills', d: 'Reusable intents: triage, implement, verify, release.' },
+  { t: 'Connectors', d: 'MCP access to external tools (issues, CI, docs).' },
+  { t: 'Sub-agents', d: 'Maker/checker — one writes, another independently verifies.' },
+  { t: 'State', d: 'Durable memory outside the model (a STATE.md the loop reads/writes).' },
+]
+const LOOP_PATTERNS = [
+  ['Daily Triage', '1–2 days', 'Morning scan of CI, issues, recent commits'],
+  ['PR Babysitter', '5–15 min', 'Shepherd PRs through review → merge'],
+  ['CI Sweeper', '5–15 min', 'React to failing checks; classify flakes'],
+  ['Post-Merge Cleanup', '6h–1 day', 'TODOs, deprecations, small tech debt'],
+  ['Dependency Sweeper', '6h–1 day', 'Patch CVEs and stale dependencies'],
+  ['Issue Triage', '2h–1 day', 'Dedupe, score, and label incoming issues'],
+  ['Changelog Drafter', 'per tag', 'Draft release notes from merged work'],
+]
+const LOOP_PRACTICES = [
+  { kind: '📈 Readiness', t: 'Score before you automate', d: 'Rate the repo L0–L3 (tests, CI, docs). Don’t hand a loop work it can’t verify.' },
+  { kind: '👀 Report-only', t: 'Observe for a week', d: 'Run the loop in “suggest, don’t act” mode first; read its logs before giving it write access.' },
+  { kind: '🛡️ Guardrails', t: 'Gate the risky bits', d: 'Human-approval gates, path denylists, least-privilege MCP, daily token/spawn budgets.' },
+  { kind: '🧯 Failure modes', t: 'Plan for them', d: 'Catalog infinite loops, token burn, and “verifier theater” (a checker that always passes).' },
+]
+function LoopEngineering() {
+  return (
+    <div className="vc-bp" style={{ background: 'linear-gradient(180deg,#f1ecfb,#e7defb)' }}>
+      <h3 className="vc-h3" style={{ marginTop: 0 }}>🔁 Loop Engineering — for developers</h3>
+      <p className="vc-lead" style={{ marginTop: 0 }}>Once your app exists, the next level is <b>maintaining and extending it with loops</b>:
+        “You shouldn’t be prompting coding agents anymore — you should be <b>designing loops that prompt your agents</b>.”
+        Design a loop once; it autonomously discovers work, does it, verifies it, and reports back.</p>
+
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>Anatomy of one loop</span>
+      <div className="vs-flow">
+        {LOOP_ANATOMY.map((s, i) => (
+          <React.Fragment key={i}>
+            <span className="vs-chip cool">{s}</span>
+            {i < LOOP_ANATOMY.length - 1 && <span className="vs-arrow">→</span>}
+          </React.Fragment>
+        ))}
+      </div>
+
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>The building blocks</span>
+      <div className="vc-must">
+        {LOOP_PRIMS.map((p, i) => <div className="vc-must-row" key={i}><span className="vc-must-check">▸</span><div><b>{p.t}</b> — {p.d}</div></div>)}
+      </div>
+
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>Production loop patterns</span>
+      <div className="matrix">
+        <div className="mx-head"><div /><div className="mx-c">Cadence</div><div className="mx-c">What it does</div></div>
+        {LOOP_PATTERNS.map((r, i) => <div className="mx-row" key={i}><div className="mx-dim">{r[0]}</div><div className="mx-c">{r[1]}</div><div className="mx-c">{r[2]}</div></div>)}
+      </div>
+
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>Engineering practices</span>
+      <div className="vc-tips">
+        {LOOP_PRACTICES.map((t, i) => <div className="vc-tip" key={i} style={{ background: '#faf7ff' }}><div className="vc-tip-k" style={{ color: '#7a4fd0' }}>{t.kind}</div><div className="vc-tip-t">{t.t}</div><div className="vc-tip-d">{t.d}</div></div>)}
+      </div>
+
+      <div className="note" style={{ marginTop: 14 }}>Inspired by <a href="https://cobusgreyling.github.io/loop-engineering/#interactive" target="_blank" rel="noreferrer">Cobus Greyling’s “Loop Engineering”</a>. Start small: one low-risk loop (Daily Triage), report-only, with a human gate.</div>
+    </div>
+  )
+}
+
+/* ============================================================
    Page
    ============================================================ */
 export default function VibeCoding() {
@@ -289,6 +357,8 @@ export default function VibeCoding() {
         <h3 className="vc-h3">✨ Best practices (carry these through both sections)</h3>
         <ul className="vc-ul">{BEST_PRACTICES.map((b, i) => <li key={i}>{b}</li>)}</ul>
       </div>
+
+      <LoopEngineering />
     </>
   )
 }
