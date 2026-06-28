@@ -24,6 +24,16 @@ you **what to do, where to click, what to read, and what to learn.**
 
 ---
 
+## 💻 Downloadable code + lab docs
+
+Every lab also ships as **runnable code** (a `.py` and a Jupyter `.ipynb`) plus
+**two docs** — a non-technical *for everyone* version and a technical *for
+developers* version. See **[docs/labs/](docs/labs/README.md)**.
+
+Direct downloads (live site): `https://priyankavergadia.github.io/life-of-a-token/labs/`
+— `genai-lab`, `project-llm-outputs`, `project-rag`, `project-tools`,
+`project-personalization` (each as `.ipynb` and `.py`).
+
 ## How the app is organised
 
 Two groups of tabs at the top:
