@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { StickFigure, Squiggle } from './Doodles.jsx'
 
 /* ============================================================
-   Content (from "Vibe Code Your Business: AI App Build", OIDD 6670)
+   Content (from the "Vibe Code Your Business Idea" app-build assignment)
    ============================================================ */
 const PHASES = [
   {
@@ -267,7 +267,7 @@ export default function VibeCoding() {
         <div className="mascot">
           <StickFigure pose="wave" color="#ffc02e" size={74} />
           <div>
-            <div className="kicker">OIDD 6670 · Group exercise · Vibe Code Your Business</div>
+            <div className="kicker">Group exercise · Vibe Code Your Business Idea</div>
             <h1>Vibe Coding with Best Practices</h1>
             <p>Plan it like a product owner, prompt it in stages, and ship a real, live app.</p>
           </div>

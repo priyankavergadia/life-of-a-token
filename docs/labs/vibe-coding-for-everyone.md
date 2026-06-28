@@ -1,6 +1,6 @@
 # Vibe Coding — For Everyone (no coding needed)
 
-A plain-language overview of the **Vibe Code Your Business: AI App Build**
+A plain-language overview of the **Vibe Code Your Business Idea**
 assignment: plan a real app, prompt an AI to build it, and ship a live product.
 
 👉 **Open it:** https://priyankavergadia.github.io/life-of-a-token/#/vibe-coding
