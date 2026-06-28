@@ -136,13 +136,11 @@ export function CloudDoodle({ size = 60, teal = '#4ec5d4', light = '#bdeef4', in
   )
 }
 
-/* The Cloud Girl wordmark logo: teal clouds + stacked "CLOUD GIRL". */
+/* The official Cloud Girl wordmark logo (clouds + "CLOUD GIRL"). */
 export function CloudGirlLogo({ size = 50 }) {
+  const base = import.meta.env.BASE_URL
   return (
-    <div className="cg-logo" aria-label="Cloud Girl">
-      <CloudDoodle size={size} />
-      <div className="cg-word"><span>CLOUD</span><span>GIRL</span></div>
-    </div>
+    <img className="cg-logo-img" src={`${base}brand/cloud-girl-logo.png`} alt="Cloud Girl" style={{ height: size, width: 'auto' }} />
   )
 }
 
