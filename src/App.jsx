@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { SketchDefs, SunDoodle, WalkingCat } from './Doodles.jsx'
 import TokenJourney from './TokenJourney.jsx'
 import LabJourney from './LabJourney.jsx'
@@ -6,17 +6,38 @@ import { Capstone1, Capstone2, Capstone3, Capstone4 } from './capstones.jsx'
 import { useCreds } from './labkit.jsx'
 
 const VIEWS = [
-  { id: 'token', label: 'Life of a Token', icon: '🔤', group: 'Learn' },
-  { id: 'lab', label: 'GenAI Lab', icon: '🧪', group: 'Learn' },
-  { id: 'c1', label: 'LLM Outputs', icon: '🛡️', group: 'Projects' },
-  { id: 'c2', label: 'RAG', icon: '📚', group: 'Projects' },
-  { id: 'c3', label: 'Tools', icon: '🤖', group: 'Projects' },
-  { id: 'c4', label: 'Personalization', icon: '📧', group: 'Projects' },
+  { id: 'token', slug: 'token', label: 'Life of a Token', icon: '🔤', group: 'Learn' },
+  { id: 'lab', slug: 'genai-lab', label: 'GenAI Lab', icon: '🧪', group: 'Learn' },
+  { id: 'c1', slug: 'llm-outputs', label: 'LLM Outputs', icon: '🛡️', group: 'Projects' },
+  { id: 'c2', slug: 'rag', label: 'RAG', icon: '📚', group: 'Projects' },
+  { id: 'c3', slug: 'tools', label: 'Tools', icon: '🤖', group: 'Projects' },
+  { id: 'c4', slug: 'personalization', label: 'Personalization', icon: '📧', group: 'Projects' },
 ]
 
+// Lightweight hash routing so each tab is deep-linkable, e.g. .../#/rag
+const SLUG_TO_ID = Object.fromEntries(VIEWS.map((v) => [v.slug, v.id]))
+const ID_TO_SLUG = Object.fromEntries(VIEWS.map((v) => [v.id, v.slug]))
+function viewFromHash() {
+  const h = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase()
+  return SLUG_TO_ID[h] || null
+}
+
 export default function App() {
-  const [view, setView] = useState('token')
+  const [view, setView] = useState(() => viewFromHash() || 'token')
   const [creds, setCreds] = useCreds()
+
+  // Keep the tab and the URL hash in sync (supports back/forward + direct links).
+  useEffect(() => {
+    const onHash = () => { const id = viewFromHash(); if (id) setView(id) }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  const go = (id) => {
+    setView(id)
+    const slug = ID_TO_SLUG[id]
+    if (slug && window.location.hash !== `#/${slug}`) window.location.hash = `#/${slug}`
+  }
 
   const render = () => {
     switch (view) {
@@ -51,7 +72,7 @@ export default function App() {
               <div className="view-group-label">{g}</div>
               <div className="view-group-row">
                 {VIEWS.filter((v) => v.group === g).map((v) => (
-                  <button key={v.id} className={`view-tab ${view === v.id ? 'on' : ''}`} onClick={() => setView(v.id)}>
+                  <button key={v.id} className={`view-tab ${view === v.id ? 'on' : ''}`} onClick={() => go(v.id)}>
                     <span className="vt-ic">{v.icon}</span>{v.label}
                   </button>
                 ))}
