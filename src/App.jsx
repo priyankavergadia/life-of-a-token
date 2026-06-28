@@ -1,0 +1,249 @@
+import React, { useState, useMemo, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { buildPipeline } from './engine.js'
+import {
+  IntroView, TokenFlow, VectorList, EmbeddingMap, PositionalWave,
+  AttentionView, FFNView, LayersView, OutputView,
+} from './components.jsx'
+import { SketchDefs, StickFigure, SunDoodle, Squiggle } from './Doodles.jsx'
+
+// which pose the little guide strikes on each step
+const POSES = ['wave', 'point', 'think', 'point', 'think', 'cheer', 'think', 'cheer', 'cheer']
+const POSE_COLORS = ['#ffc02e', '#f47b20', '#15b3a4', '#2e9bd6', '#8a5cf0', '#f47b20', '#15b3a4', '#ffc02e', '#f2553d']
+
+const STEPS = [
+  {
+    id: 'intro', tab: 'Start', kicker: 'The journey',
+    title: 'The life of a query',
+    body: (
+      <>
+        <p>This is what happens <b>under the hood</b> when you send a message to an LLM like Claude. No magic, no database lookup — just numbers flowing through the same handful of operations, repeated at enormous scale.</p>
+        <p>Use the steps at the top, or the arrows below, to follow your query from raw text all the way to a predicted next word.</p>
+        <div className="note analogy"><b>Mental model:</b> think of it as an assembly line. Each station transforms the words a little more, and information flows forward until a confident answer pops out the end.</div>
+      </>
+    ),
+  },
+  {
+    id: 'tokens', tab: 'Tokenize', kicker: 'Step 1 · Tokenization',
+    title: 'Words become tokens',
+    body: (
+      <>
+        <p>The model can’t read letters. First it chops your text into <b>tokens</b> — common words stay whole, but rare or long words shatter into pieces (and a space usually rides along at the front).</p>
+        <p>Each token maps to a number, its <b>ID</b> — a row in a giant lookup table of ~100,000 possible tokens. From here on, your sentence is just a list of these IDs.</p>
+        <div className="note"><b>Why split words?</b> A fixed vocabulary can’t hold every word ever. Sub-word pieces let the model spell out anything — even words it has never seen — by combining parts.</div>
+      </>
+    ),
+  },
+  {
+    id: 'embed', tab: 'Embed', kicker: 'Step 2 · Embeddings',
+    title: 'Tokens become vectors',
+    body: (
+      <>
+        <p>Each token ID is swapped for a long list of numbers — its <b>embedding vector</b> (thousands of dimensions in real models). This vector is the token’s <b>meaning</b>, learned from reading the internet.</p>
+        <p>The bars show 8 of those numbers. The key idea: words that mean similar things get similar vectors. That’s not hand-coded — it falls out of training.</p>
+        <div className="note analogy"><b>Analogy:</b> an embedding is like GPS coordinates for meaning. “king” and “queen” live in the same neighborhood; “banana” is across town.</div>
+      </>
+    ),
+  },
+  {
+    id: 'map', tab: 'Meaning map', kicker: 'Step 2½ · See the meaning',
+    title: 'Where the words land',
+    body: (
+      <>
+        <p>Those thousand-dimension vectors are impossible to picture, so here they’re squashed down to a <b>2D map</b>. Each dot is one of your tokens; the glowing zones are regions of related meaning.</p>
+        <p>Hover any dot. Notice how words about the sky drift together, animals cluster elsewhere, and little glue-words (the, of, on) pool in their own corner — purely from how they’re used.</p>
+        <div className="note"><b>This is the “aha”:</b> meaning becomes geometry. “Close together” literally means “similar.” Attention, coming next, exploits exactly this.</div>
+      </>
+    ),
+  },
+  {
+    id: 'pos', tab: 'Position', kicker: 'Step 3 · Positional encoding',
+    title: 'Adding a sense of order',
+    body: (
+      <>
+        <p>Here’s a twist: the transformer looks at <b>every token at once</b>, not left-to-right. Fast — but it would have no idea which word came first.</p>
+        <p>So each position gets a unique <b>fingerprint</b> made of sine and cosine waves, added right into the vector. Now “dog bites man” and “man bites dog” are no longer the same.</p>
+        <div className="note analogy"><b>Analogy:</b> like numbering seats in a theater. The people (meanings) are the same, but now everyone knows exactly where they’re sitting.</div>
+      </>
+    ),
+  },
+  {
+    id: 'attn', tab: 'Attention', kicker: 'Step 4 · Self-attention',
+    title: 'Words look at each other',
+    body: (
+      <>
+        <p>This is the heart of the transformer. Every token asks a question (its <b>Query</b>) and every token offers an answer (its <b>Key</b>). Strong matches let one word pull in <b>information</b> (the <b>Value</b>) from another.</p>
+        <p>So “it” can find what it refers to; “blue” can reach back to “sky”. The grid shows who’s paying attention to whom. Multiple <b>heads</b> run in parallel, each specializing — switch heads to watch their different obsessions.</p>
+        <div className="note"><b>Causal mask:</b> when predicting the next word, a token may only look at words <b>before</b> it — never the future. That’s the blank upper-right triangle.</div>
+      </>
+    ),
+  },
+  {
+    id: 'ffn', tab: 'Feed-forward', kicker: 'Step 5 · Feed-forward network',
+    title: 'Each word thinks for itself',
+    body: (
+      <>
+        <p>After attention mixes information <i>between</i> words, every token is sent solo through a small neural network — the <b>feed-forward network</b>. It widens the vector ~4×, lights up the neurons that recognize a pattern, then shrinks it back.</p>
+        <p>This is where most of the model’s <b>factual knowledge</b> is stored. Think of attention as “gather context” and feed-forward as “process it”.</p>
+        <div className="note analogy"><b>Analogy:</b> attention is the group conversation; the feed-forward step is each person going off to think privately about what they just heard.</div>
+      </>
+    ),
+  },
+  {
+    id: 'layers', tab: 'Stack ×N', kicker: 'Step 6 · Stacking layers',
+    title: 'Do it again. And again.',
+    body: (
+      <>
+        <p>Attention + feed-forward together make one <b>block</b>. Then the whole thing repeats — dozens of times. The output of one block is the input to the next.</p>
+        <p>Early blocks pick up grammar and simple links. Deeper blocks assemble meaning, tone, intent, and the beginnings of reasoning. <b>Depth</b> is where capability comes from.</p>
+        <div className="note"><b>Residual connections:</b> each block <i>adds</i> to the running representation instead of replacing it — so nothing important gets lost on the way up.</div>
+      </>
+    ),
+  },
+  {
+    id: 'output', tab: 'Predict', kicker: 'Step 7 · The prediction',
+    title: 'Out comes the next word',
+    body: (
+      <>
+        <p>After the final block, the last token’s vector is matched against the entire vocabulary, scoring every possible next word. <b>Softmax</b> turns those raw scores into probabilities that sum to 100%.</p>
+        <p>The model picks one (usually the top, with a dash of randomness), <b>appends it</b>, and runs the <i>entire</i> pipeline again to choose the word after that. That loop, repeated, is your full answer.</p>
+        <div className="note analogy"><b>The big reveal:</b> Claude writes one token at a time. It never plans the whole sentence first — each word is the most likely next step, given everything so far.</div>
+      </>
+    ),
+  },
+]
+
+const EXAMPLES = ['Why is the sky blue?', 'The cat sat on the', 'Write code to reverse a list', 'Explain how you think, Claude']
+
+export default function App() {
+  const [query, setQuery] = useState('Why is the sky blue?')
+  const [draft, setDraft] = useState(query)
+  const [step, setStep] = useState(0)
+
+  const pipe = useMemo(() => buildPipeline(query || ' '), [query])
+  const lastTokenText = pipe.tokens.length ? pipe.tokens[pipe.tokens.length - 1].text : ''
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target.tagName === 'INPUT') return
+      if (e.key === 'ArrowRight') setStep((s) => Math.min(STEPS.length - 1, s + 1))
+      if (e.key === 'ArrowLeft') setStep((s) => Math.max(0, s - 1))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  const run = () => { setQuery(draft.trim() || ' '); setStep(1) }
+  const cur = STEPS[step]
+
+  const renderViz = () => {
+    switch (cur.id) {
+      case 'intro': return <IntroView />
+      case 'tokens': return <TokenFlow tokens={pipe.tokens} />
+      case 'embed': return <VectorList tokens={pipe.tokens} embeds={pipe.embeds} />
+      case 'map': return <EmbeddingMap tokens={pipe.tokens} embeds={pipe.embeds} regions={pipe.regions} />
+      case 'pos': return <PositionalWave tokens={pipe.tokens} positions={pipe.positions} />
+      case 'attn': return <AttentionView tokens={pipe.tokens} embeds={pipe.embeds} heads={pipe.heads} />
+      case 'ffn': return <FFNView ffnResult={pipe.ffnResult} lastToken={lastTokenText} lastVec={pipe.embeds.length ? pipe.embeds[pipe.embeds.length - 1].vec : []} />
+      case 'layers': return <LayersView firstToken={pipe.tokens.length ? pipe.tokens[0].text : 'Why'} nextToken={pipe.predictions[0]?.token || '…'} />
+      case 'output': return <OutputView predictions={pipe.predictions} context={query} />
+      default: return null
+    }
+  }
+
+  return (
+    <div className="app">
+      <SketchDefs />
+      {/* top bar */}
+      <div className="topbar">
+        <div className="brand">
+          <div className="logo">
+            <SunDoodle size={52} />
+          </div>
+          <div>
+            <h1>The Life of a Query</h1>
+            <div className="sub">How a large language model turns your words into an answer</div>
+          </div>
+        </div>
+        <div className="pill">Step <b>{step + 1}</b> / {STEPS.length} · use <span className="kbd">←</span> <span className="kbd">→</span></div>
+      </div>
+
+      {/* query bar */}
+      <div>
+        <div className="querybar">
+          <div className="field">
+            <label>Your query to Claude</label>
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && run()}
+              placeholder="Type anything…"
+              spellCheck={false}
+            />
+          </div>
+          <button className="btn" onClick={run}>Trace it ↦</button>
+        </div>
+        <div className="chips">
+          <span style={{ fontSize: 12, color: 'var(--text-faint)', alignSelf: 'center' }}>try:</span>
+          {EXAMPLES.map((ex) => (
+            <button key={ex} className="chip" onClick={() => { setDraft(ex); setQuery(ex); setStep(1) }}>{ex}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* stepper */}
+      <div className="stepper">
+        {STEPS.map((s, i) => (
+          <button key={s.id} className={`step-tab ${i === step ? 'active' : ''} ${i < step ? 'done' : ''}`} onClick={() => setStep(i)}>
+            <span className="num">{i < step ? '✓' : i + 1}</span>
+            {s.tab}
+          </button>
+        ))}
+      </div>
+
+      {/* stage */}
+      <div className="stage">
+        <motion.div
+          key={cur.id + query}
+          className="panel viz"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {renderViz()}
+        </motion.div>
+
+        <motion.div
+          key={cur.id}
+          className="panel explain"
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div>
+            <div className="mascot">
+              <StickFigure pose={POSES[step]} color={POSE_COLORS[step]} size={70} />
+              <div style={{ paddingBottom: 6 }}>
+                <div className="kicker">{cur.kicker}</div>
+                <h2>{cur.title}</h2>
+              </div>
+            </div>
+            <div style={{ marginTop: 4 }}><Squiggle width={170} /></div>
+          </div>
+          {cur.body}
+        </motion.div>
+      </div>
+
+      {/* footer nav */}
+      <div className="nav">
+        <button className="btn ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} style={{ opacity: step === 0 ? 0.4 : 1 }}>← Back</button>
+        <div className="progress"><i style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} /></div>
+        {step < STEPS.length - 1 ? (
+          <button className="btn" onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}>Next →</button>
+        ) : (
+          <button className="btn" onClick={() => setStep(0)}>↺ Start over</button>
+        )}
+      </div>
+    </div>
+  )
+}
