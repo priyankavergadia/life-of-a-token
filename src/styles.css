@@ -548,6 +548,29 @@ button { font-family: inherit; cursor: pointer; }
 .vc-bp { margin: 30px 0 10px; background: linear-gradient(180deg,#eef9f4,#e3f3ec); border: 2.4px solid var(--ink); border-radius: 16px 12px 16px 12px / 12px 16px 12px 16px; box-shadow: var(--sticker-sm); padding: 16px 20px; }
 .vc-bp .vc-h3 { margin-top: 0; }
 
+/* ============================================================
+   Greeting Cards (final project) tab
+   ============================================================ */
+.gc-img { width: 100%; border: 2.4px solid var(--ink); border-radius: 12px; box-shadow: var(--sticker-sm); margin: 12px 0 4px; display: block; }
+.gc-roster { display: flex; flex-direction: column; gap: 9px; }
+.gc-agent { display: flex; gap: 11px; align-items: flex-start; border: 2.4px solid var(--ink); border-radius: 12px; padding: 10px 12px; background: var(--panel); box-shadow: var(--sticker-sm); }
+.gc-agent-ic { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; font-size: 19px; flex: none; }
+.gc-agent-n { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); }
+.gc-agent-r { font-family: var(--mono); font-size: 11px; color: var(--text-faint); margin-bottom: 3px; }
+.gc-agent-b { font-size: 12.8px; color: var(--ink-soft); line-height: 1.4; }
+.gc-loop { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.gc-loop-node { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 6px 11px; border: 2px solid var(--ink); border-radius: 9px; }
+.gc-loop-node.cool { background: #e7defb; }
+.gc-loop-node.hot { background: #ffe1d3; }
+.gc-loop-arrow { color: var(--text-faint); font-weight: 700; }
+.gc-loop-back { font-size: 12.5px; color: var(--coral); font-weight: 600; margin: 8px 0 2px; }
+.gc-reject { display: flex; gap: 9px; align-items: flex-start; border: 2px solid var(--ink); border-radius: 10px; padding: 8px 11px; margin: 7px 0; background: #fff3f0; }
+.gc-reject-x { flex: none; }
+.gc-reject-fix { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.gc-ul { margin: 4px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+.gc-ul li { font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+.gc-ul b { color: var(--ink); }
+
 /* ---- Cloud Girl logo + topbar clouds ---- */
 .cg-logo { display: flex; align-items: center; gap: 8px; }
 .cg-word { display: flex; flex-direction: column; line-height: 0.84; }

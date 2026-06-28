@@ -4,12 +4,14 @@ import TokenJourney from './TokenJourney.jsx'
 import LabJourney from './LabJourney.jsx'
 import { Capstone1, Capstone2, Capstone3, Capstone4 } from './capstones.jsx'
 import VibeCoding from './VibeCoding.jsx'
+import GreetingCards from './GreetingCards.jsx'
 import { useCreds } from './labkit.jsx'
 
 const VIEWS = [
   { id: 'token', slug: 'token', label: 'Life of a Token', icon: '🔤', group: 'Learn' },
   { id: 'lab', slug: 'genai-lab', label: 'GenAI Lab', icon: '🧪', group: 'Learn' },
   { id: 'vibe', slug: 'vibe-coding', label: 'Vibe Coding', icon: '🛠️', group: 'Build' },
+  { id: 'greeting', slug: 'greeting-cards', label: 'Greeting Cards', icon: '🎨', group: 'Final Project' },
   { id: 'c1', slug: 'llm-outputs', label: 'LLM Outputs', icon: '🛡️', group: 'Projects' },
   { id: 'c2', slug: 'rag', label: 'RAG', icon: '📚', group: 'Projects' },
   { id: 'c3', slug: 'tools', label: 'Tools', icon: '🤖', group: 'Projects' },
@@ -46,6 +48,7 @@ export default function App() {
       case 'token': return <TokenJourney />
       case 'lab': return <LabJourney creds={creds} setCreds={setCreds} />
       case 'vibe': return <VibeCoding />
+      case 'greeting': return <GreetingCards creds={creds} setCreds={setCreds} />
       case 'c1': return <Capstone1 creds={creds} setCreds={setCreds} />
       case 'c2': return <Capstone2 creds={creds} setCreds={setCreds} />
       case 'c3': return <Capstone3 creds={creds} setCreds={setCreds} />
@@ -54,7 +57,7 @@ export default function App() {
     }
   }
 
-  const groups = ['Learn', 'Projects', 'Build']
+  const groups = ['Learn', 'Projects', 'Build', 'Final Project']
 
   return (
     <div className="app">
