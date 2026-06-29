@@ -70,7 +70,7 @@ export default function App() {
         <div className="brand">
           <CloudGirlLogo size={52} />
           <div className="brand-text">
-            <h1>AI, Visually</h1>
+            <h1>Learning AI, Visually</h1>
             <div className="sub">Interactive explainers for how AI really works · by <b>The Cloud Girl</b></div>
           </div>
         </div>

@@ -179,7 +179,7 @@ function PromptDevelopment() {
       <h3 className="vc-h3">🧱 The Master Prompt</h3>
       <CopyBox text={MASTER_PROMPT} />
 
-      <h3 className="vc-h3">📦 Part 1 submission — due end of the in-class session</h3>
+      <h3 className="vc-h3">📦 Part 1 submission</h3>
       <div className="vc-deliv">
         {PART1_DELIVERABLES.map((d) => (
           <div className="vc-deliv-card" key={d.n} style={{ borderColor: d.color }}>
