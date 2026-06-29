@@ -167,16 +167,42 @@ const GC_GUIDE = {
   files: { ipynb: 'greeting-card.ipynb', py: 'greeting-card.py' },
   everyone: (
     <>
-      <h4>🙂 For everyone — meet a team of AI agents</h4>
-      <p>This final project shows how several AIs can work together — like a design studio — to build a finished product. No key or code needed to explore it.</p>
-      <span className="g-sub">Walk the steps</span>
+      <h4>🙂 For everyone — build it yourself by vibe coding (no code!)</h4>
+      <p>You don’t need to know how to code to build this. You’ll <b>describe it in plain English</b> to an AI builder and watch it create the app — “vibe coding.” By the end you’ll have made a real, working greeting-card studio.</p>
+
+      <span className="g-sub">Step 1 · Pick a tool (free)</span>
       <ol>
-        <li><b>Overview</b> — read how five agents (a director, librarian, layout designer, critic, renderer) form a pipeline.</li>
-        <li><b>The Team</b> — read what each agent does. Notice each is just a <i>name + a job description</i>.</li>
-        <li><b>Critique Loop</b> — this is the magic: <b>Chris</b> the critic checks the design and, if it’s wrong, sends specific feedback back to whoever caused it. The team tries again until it’s good.<span className="g-expect">Generate → judge → fix → repeat.</span></li>
-        <li><b>The Result</b> — see the finished hand-drawn card and how it’s styled.</li>
+        <li><b>Lovable</b> — <a href="https://lovable.dev" target="_blank" rel="noreferrer">lovable.dev</a> — describe the app in a chat and it builds the whole thing. <i>(recommended)</i></li>
+        <li><b>Google AI Studio</b> — <a href="https://aistudio.google.com" target="_blank" rel="noreferrer">aistudio.google.com</a> — great for writing &amp; testing each agent’s prompt with Gemini before wiring it together.</li>
+        <li>Sign in (free), then open a new project/chat.</li>
       </ol>
-      <span className="g-note">✅ <b>You’re done when</b> you can explain, in your own words, how 5 agents + a critique loop turn a request like <i>“a birthday card for a 1-year-old”</i> into a finished card. Want to make one yourself? Switch to <b>👩‍💻 For developers</b> and click <b>🚀 Open in Colab</b>.</span>
+
+      <span className="g-sub">Step 2 · Vibe-code it in stages (paste ONE prompt at a time)</span>
+      <ol>
+        <li><b>Scaffold the app</b> — paste this to start:
+          <pre>Build a web app called “Greeting Card Studio.” A user types who the card is for (e.g. “a 1-year-old’s birthday”), clicks “Make my card,” and a hand-drawn card appears. Behind the scenes use a team of 5 AI helpers that brainstorm the words & doodles, arrange them, critique the design, and draw the final card. Show a fun “agents at work” status while it works. Keep it playful and hand-drawn.</pre>
+          <span className="g-expect">You get a page with an input box and a button.</span>
+        </li>
+        <li><b>Create the 5 agents</b> — tell it “set up these 5 helpers, each with its own job,” then give each a persona:
+          <ul>
+            <li><b>Connie</b> (Creative Director) — writes a short greeting (under 12 characters) + picks exactly 6 doodle ideas.</li>
+            <li><b>Archie</b> (Asset Librarian) — finds a simple Quick, Draw!-style doodle for each idea.</li>
+            <li><b>Layla</b> (Layout Designer) — arranges the 6 doodles around the edges, keeping the middle clear for text.</li>
+            <li><b>Chris</b> (Critic) — checks it’s on-theme, exactly 6 items, text short, nothing overlapping.</li>
+            <li><b>Ren</b> (Renderer) — draws the final hand-drawn “marker” card.</li>
+          </ul>
+        </li>
+        <li><b>Add the critique loop</b> — paste:
+          <pre>Add a critique loop: after a draft is made, have Chris check it. If it’s wrong (off-theme, too much text, or overlapping), send it back to the right helper to fix and try again — up to 6 times — then show the final card. Show each attempt in the status.</pre>
+          <span className="g-expect">Ask for a “baby” card and watch Chris reject grown-up items.</span>
+        </li>
+        <li><b>Polish the look</b> — paste:
+          <pre>Make it look hand-drawn: pastel marker fills with dark outlines, wobbly letters, and stars/confetti only around the edges (never over the text).</pre>
+        </li>
+        <li><b>Run &amp; iterate</b> — type a request, generate, then refine by chatting: <i>“make the text bigger,” “add more confetti,” “try a different layout.”</i> Add a <b>Download</b> button.</li>
+      </ol>
+
+      <span className="g-note">📥 Grab the full <a href={`${base}labs/greeting-card-vibe-prompts.md`} download>vibe-coding prompt pack</a> (every prompt, ready to paste). ✅ <b>You’re done when</b> you’ve generated and downloaded your own card — built entirely by prompting. Curious how it works under the hood? Peek at <b>👩‍💻 For developers</b>.</span>
     </>
   ),
   developers: (
