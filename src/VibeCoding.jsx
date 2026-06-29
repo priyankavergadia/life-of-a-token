@@ -411,12 +411,12 @@ export default function VibeCoding() {
 
       {sec === 'prompt' ? <PromptDevelopment /> : <ProjectCreation />}
 
+      {sec === 'build' && <LoopEngineering />}
+
       <div className="vc-bp">
         <h3 className="vc-h3">✨ Best practices (carry these through both sections)</h3>
         <ul className="vc-ul">{BEST_PRACTICES.map((b, i) => <li key={i}>{b}</li>)}</ul>
       </div>
-
-      <LoopEngineering />
     </>
   )
 }
