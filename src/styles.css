@@ -548,6 +548,17 @@ button { font-family: inherit; cursor: pointer; }
 .vc-bp { margin: 30px 0 10px; background: linear-gradient(180deg,#eef9f4,#e3f3ec); border: 2.4px solid var(--ink); border-radius: 16px 12px 16px 12px / 12px 16px 12px 16px; box-shadow: var(--sticker-sm); padding: 16px 20px; }
 .vc-bp .vc-h3 { margin-top: 0; }
 
+/* loop-engineering exercise steps */
+.le-steps { display: flex; flex-direction: column; gap: 9px; }
+.le-step { border: 2.2px solid var(--ink); border-radius: 11px; padding: 10px 13px; background: #faf7ff; box-shadow: var(--sticker-sm); }
+.le-step-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.le-step-n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #7a4fd0; color: #fff; font-family: var(--display); font-weight: 700; font-size: 14px; flex: none; }
+.le-step-t { font-family: var(--display); font-weight: 700; font-size: 15.5px; color: var(--ink); }
+.le-step-teach { font-family: var(--mono); font-size: 10.5px; color: #7a4fd0; margin-left: auto; }
+.le-step-do { font-size: 13px; color: var(--ink-soft); line-height: 1.45; margin-top: 6px; }
+.le-step-do b { color: var(--ink); }
+.le-step-check { font-size: 12.5px; color: var(--teal-deep); margin-top: 4px; font-weight: 600; }
+
 /* ============================================================
    Greeting Cards (final project) tab
    ============================================================ */

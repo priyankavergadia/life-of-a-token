@@ -121,7 +121,7 @@ const BEST_PRACTICES = [
 /* ============================================================
    Small UI bits
    ============================================================ */
-function CopyBox({ text }) {
+function CopyBox({ text, label = '📋 Master Prompt Template — copy & complete' }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
     try { navigator.clipboard?.writeText(text) } catch (e) { /* ignore */ }
@@ -130,7 +130,7 @@ function CopyBox({ text }) {
   return (
     <div className="vc-copy">
       <div className="vc-copy-bar">
-        <span>📋 Master Prompt Template — copy &amp; complete</span>
+        <span>{label}</span>
         <button onClick={copy}>{copied ? '✓ copied' : '⧉ copy'}</button>
       </div>
       <pre>{text}</pre>
@@ -285,15 +285,53 @@ const LOOP_PRACTICES = [
   { kind: '🛡️ Guardrails', t: 'Gate the risky bits', d: 'Human-approval gates, path denylists, least-privilege MCP, daily token/spawn budgets.' },
   { kind: '🧯 Failure modes', t: 'Plan for them', d: 'Catalog infinite loops, token burn, and “verifier theater” (a checker that always passes).' },
 ]
+// The hands-on exercise: build a Daily Triage loop, one primitive per step.
+const LOOP_PROJECT_STEPS = [
+  { n: 1, title: 'Define the loop (scope)', teaches: 'A loop does ONE thing.', do: 'Write one sentence: the loop’s single job + its “done-for-the-day” criteria.', check: 'You can state the job and when it stops in one line.' },
+  { n: 2, title: 'Schedule the trigger', teaches: 'Scheduling — design once, run continuously.', do: 'Wire a trigger: cron 0 9 * * 1-5, your agent’s /loop 1d, or a CI job. Fire it once.', check: 'It starts on its own — nobody types a prompt.' },
+  { n: 3, title: 'Write the Triage step', teaches: 'Loops discover their own work.', do: 'Define what to scan (issues, failing CI, new commits, fresh TODOs) and how to rank it.', check: 'A run prints a ranked list of candidate items.' },
+  { n: 4, title: 'Add State', teaches: 'Durable memory outside the model.', do: 'Create STATE.md; record the timestamp + IDs you reported. Skip them next run.', check: 'Running twice does NOT re-report the same items.' },
+  { n: 5, title: 'Package a Skill', teaches: 'Reusable intents, not one-off prompts.', do: 'Move the triage prompt into triage.md your agent invokes by name.', check: 'You run it by referencing the skill, not pasting text.' },
+  { n: 6, title: 'Implement — report-only', teaches: 'The report-only phase.', do: 'Produce briefing-<date>.md. No code changes, no posting yet.', check: 'A dated briefing file is generated each run.' },
+  { n: 7, title: 'Verify (maker/checker)', teaches: 'Sub-agents — beat “verifier theater”.', do: 'Add a second pass that rejects duplicates / unverifiable items / bad priority.', check: 'A deliberately wrong item gets caught and dropped.' },
+  { n: 8, title: 'Connect + Human gate', teaches: 'Connectors + safety.', do: 'Post via MCP (Slack / PR comment) behind your approval; add least-privilege token + token budget.', check: 'Nothing leaves the loop without your ok.' },
+  { n: 9, title: 'Run a week, then graduate', teaches: 'Worktrees + staged escalation.', do: 'After ~5 report-only days, add ONE write action (e.g. auto-label issues) in a git worktree, still gated.', check: 'The loop now acts — safely — for its one job.' },
+]
+const LOOP_DEF_TEMPLATE = `# Loop: Daily Triage
+Job (one sentence): Scan this repo each weekday morning and post a prioritized
+  briefing of what needs attention. REPORT-ONLY.
+Trigger: cron "0 9 * * 1-5"
+Inputs: open issues, failing CI, commits since last run, new TODO/FIXME
+Output: briefing-<date>.md  (posted to #eng-triage AFTER human approval)
+Done-for-the-day: one accurate, de-duplicated briefing exists; nothing posted
+  without approval.
+Guardrails: read-only token; never edit code; max 50k tokens/run; human gate.`
+const LOOP_STATE_TEMPLATE = `# Loop State — Daily Triage
+last_run: 2026-01-01T09:00:00Z
+reported_ids:
+  - issue#142
+  - ci#run-8891
+  - todo:src/app.py:88
+notes: |
+  Anything the next run should know (open threads, deferred items).`
 function LoopEngineering() {
+  const base = import.meta.env.BASE_URL
   return (
     <div className="vc-bp" style={{ background: 'linear-gradient(180deg,#f1ecfb,#e7defb)' }}>
-      <h3 className="vc-h3" style={{ marginTop: 0 }}>🔁 Loop Engineering — for developers</h3>
-      <p className="vc-lead" style={{ marginTop: 0 }}>Once your app exists, the next level is <b>maintaining and extending it with loops</b>:
-        “You shouldn’t be prompting coding agents anymore — you should be <b>designing loops that prompt your agents</b>.”
-        Design a loop once; it autonomously discovers work, does it, verifies it, and reports back.</p>
+      <h3 className="vc-h3" style={{ marginTop: 0 }}>🔁 Loop Engineering — a hands-on project (for developers)</h3>
+      <p className="vc-lead" style={{ marginTop: 0 }}>“You shouldn’t be prompting coding agents anymore — you should be <b>designing loops that prompt your agents</b>.”
+        You’ll learn this by <b>building one</b>: take a simple use case and run it through <i>every</i> loop primitive.</p>
 
-      <span className="g-sub" style={{ color: '#7a4fd0' }}>Anatomy of one loop</span>
+      <div className="vs-stage" style={{ marginBottom: 14 }}>
+        <div className="g-sub" style={{ marginTop: 0, color: '#7a4fd0' }}>🎯 The project — “The Daily Triage Loop”</div>
+        <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
+          Every weekday morning, an agent scans <i>your</i> repo (new issues, failing CI, fresh commits & TODOs)
+          and posts a short <b>prioritized briefing</b>. It’s the lowest-risk pattern — it <b>reports, it doesn’t change code</b> —
+          so you can learn the whole anatomy safely. <b>Golden rule: start report-only;</b> the loop earns write access later.
+        </p>
+      </div>
+
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>Anatomy you’ll build</span>
       <div className="vs-flow">
         {LOOP_ANATOMY.map((s, i) => (
           <React.Fragment key={i}>
@@ -303,23 +341,43 @@ function LoopEngineering() {
         ))}
       </div>
 
-      <span className="g-sub" style={{ color: '#7a4fd0' }}>The building blocks</span>
-      <div className="vc-must">
-        {LOOP_PRIMS.map((p, i) => <div className="vc-must-row" key={i}><span className="vc-must-check">▸</span><div><b>{p.t}</b> — {p.d}</div></div>)}
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>🧪 The exercise — do these in order (each teaches one primitive)</span>
+      <div className="le-steps">
+        {LOOP_PROJECT_STEPS.map((s) => (
+          <div className="le-step" key={s.n}>
+            <div className="le-step-top"><span className="le-step-n">{s.n}</span><span className="le-step-t">{s.title}</span><span className="le-step-teach">{s.teaches}</span></div>
+            <div className="le-step-do"><b>Do:</b> {s.do}</div>
+            <div className="le-step-check">✅ {s.check}</div>
+          </div>
+        ))}
       </div>
 
-      <span className="g-sub" style={{ color: '#7a4fd0' }}>Production loop patterns</span>
-      <div className="matrix">
-        <div className="mx-head"><div /><div className="mx-c">Cadence</div><div className="mx-c">What it does</div></div>
-        {LOOP_PATTERNS.map((r, i) => <div className="mx-row" key={i}><div className="mx-dim">{r[0]}</div><div className="mx-c">{r[1]}</div><div className="mx-c">{r[2]}</div></div>)}
+      <span className="g-sub" style={{ color: '#7a4fd0' }}>Starter templates (copy &amp; fill)</span>
+      <CopyBox label="📄 loop.md — define the loop" text={LOOP_DEF_TEMPLATE} />
+      <div style={{ height: 10 }} />
+      <CopyBox label="🧠 STATE.md — durable memory" text={LOOP_STATE_TEMPLATE} />
+      <div className="run-row" style={{ marginTop: 12 }}>
+        <a className="lab-run" href={`${base}labs/loop-engineering-starter.md`} download style={{ textDecoration: 'none' }}>📥 Download the full starter pack (.md)</a>
       </div>
 
-      <span className="g-sub" style={{ color: '#7a4fd0' }}>Engineering practices</span>
-      <div className="vc-tips">
-        {LOOP_PRACTICES.map((t, i) => <div className="vc-tip" key={i} style={{ background: '#faf7ff' }}><div className="vc-tip-k" style={{ color: '#7a4fd0' }}>{t.kind}</div><div className="vc-tip-t">{t.t}</div><div className="vc-tip-d">{t.d}</div></div>)}
-      </div>
+      <details style={{ marginTop: 16 }}>
+        <summary className="g-sub" style={{ cursor: 'pointer', color: '#7a4fd0' }}>📚 Reference — building blocks, patterns &amp; practices</summary>
+        <span className="g-sub" style={{ color: '#7a4fd0' }}>The six building blocks</span>
+        <div className="vc-must">
+          {LOOP_PRIMS.map((p, i) => <div className="vc-must-row" key={i}><span className="vc-must-check">▸</span><div><b>{p.t}</b> — {p.d}</div></div>)}
+        </div>
+        <span className="g-sub" style={{ color: '#7a4fd0' }}>Production loop patterns (swap the use case)</span>
+        <div className="matrix">
+          <div className="mx-head"><div /><div className="mx-c">Cadence</div><div className="mx-c">What it does</div></div>
+          {LOOP_PATTERNS.map((r, i) => <div className="mx-row" key={i}><div className="mx-dim">{r[0]}</div><div className="mx-c">{r[1]}</div><div className="mx-c">{r[2]}</div></div>)}
+        </div>
+        <span className="g-sub" style={{ color: '#7a4fd0' }}>Engineering practices</span>
+        <div className="vc-tips">
+          {LOOP_PRACTICES.map((t, i) => <div className="vc-tip" key={i} style={{ background: '#faf7ff' }}><div className="vc-tip-k" style={{ color: '#7a4fd0' }}>{t.kind}</div><div className="vc-tip-t">{t.t}</div><div className="vc-tip-d">{t.d}</div></div>)}
+        </div>
+      </details>
 
-      <div className="note" style={{ marginTop: 14 }}>Inspired by <a href="https://cobusgreyling.github.io/loop-engineering/#interactive" target="_blank" rel="noreferrer">Cobus Greyling’s “Loop Engineering”</a>. Start small: one low-risk loop (Daily Triage), report-only, with a human gate.</div>
+      <div className="note" style={{ marginTop: 14 }}>🎓 <b>You’ve learned loop engineering when</b> you can take any repetitive task and express it as schedule → triage → state → implement → verify → connect → human gate — starting report-only and escalating behind gates. Inspired by <a href="https://cobusgreyling.github.io/loop-engineering/#interactive" target="_blank" rel="noreferrer">Cobus Greyling’s “Loop Engineering”</a>.</div>
     </div>
   )
 }
