@@ -6,7 +6,7 @@ export const PROVIDERS = {
   gemini: {
     label: 'Google Gemini',
     model: 'gemini-2.5-flash',
-    embedModel: 'text-embedding-004',
+    embedModel: 'gemini-embedding-001',
     keyHint: 'AIza…',
     keyUrl: 'https://aistudio.google.com/apikey',
     embeds: true,
