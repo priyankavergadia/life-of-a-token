@@ -55,7 +55,7 @@ def make_embeddings():
     """Embeddings model. Claude has no embeddings API -> use gemini or openai."""
     if PROVIDER == "gemini":
         from langchain_google_genai import GoogleGenerativeAIEmbeddings
-        return GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+        return GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
     if PROVIDER == "openai":
         from langchain_openai import OpenAIEmbeddings
         return OpenAIEmbeddings(model="text-embedding-3-small")
