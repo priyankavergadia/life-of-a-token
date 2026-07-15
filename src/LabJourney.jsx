@@ -32,7 +32,7 @@ function V_Toggle({ creds }) {
   const [prov, setProv] = useState(creds.provider)
   useEffect(() => { setProv(creds.provider) }, [creds.provider])
   const engines = {
-    gemini: { name: 'Google Gemini', model: 'gemini-2.5-flash', color: '#2e9bd6', ic: '✦' },
+    gemini: { name: 'Google Gemini', model: 'gemini-flash-lite-latest', color: '#2e9bd6', ic: '✦' },
     openai: { name: 'OpenAI GPT', model: 'gpt-4o-mini', color: '#15b3a4', ic: '◇' },
     anthropic: { name: 'Anthropic Claude', model: 'claude-haiku-4.5', color: '#f47b20', ic: '✲' },
   }
@@ -367,7 +367,7 @@ const LAB_STEPS = [
 ACTIVE_PROVIDER = "GEMINI"   # ← flip to "OPENAI"
 
 if ACTIVE_PROVIDER == "GEMINI":
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest")
 else:
     llm = ChatOpenAI(model="gpt-4o")
 

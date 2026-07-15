@@ -33,7 +33,7 @@ def make_llm(temperature=0.7, top_p=None, top_k=None, **kw):
     top_k is supported by Gemini & Anthropic only (OpenAI's API has none)."""
     if PROVIDER == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
-        p = dict(model="gemini-2.5-flash", temperature=temperature)
+        p = dict(model="gemini-flash-lite-latest", temperature=temperature)
         if top_p is not None: p["top_p"] = top_p
         if top_k is not None: p["top_k"] = top_k
         return ChatGoogleGenerativeAI(**p, **kw)

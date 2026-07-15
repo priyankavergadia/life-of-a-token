@@ -5,7 +5,7 @@
 export const PROVIDERS = {
   gemini: {
     label: 'Google Gemini',
-    model: 'gemini-2.5-flash',
+    model: 'gemini-flash-lite-latest',
     embedModel: 'gemini-embedding-001',
     keyHint: 'AIza…',
     keyUrl: 'https://aistudio.google.com/apikey',
@@ -41,7 +41,7 @@ async function asJson(r) {
 /* ---------------------------------------------------------------- CHAT (text) */
 // Build a Gemini generationConfig. We disable "thinking" (thinkingBudget: 0) so
 // the model spends its whole token budget on the visible answer — otherwise
-// gemini-2.5-flash can burn a small maxOutputTokens entirely on hidden thinking
+// gemini-flash-lite-latest can burn a small maxOutputTokens entirely on hidden thinking
 // and return an empty response (the source of the blank/errored Gemini calls).
 function geminiGenConfig({ temperature, maxTokens, topP, topK }) {
   const cfg = { temperature, maxOutputTokens: maxTokens, thinkingConfig: { thinkingBudget: 0 } }
