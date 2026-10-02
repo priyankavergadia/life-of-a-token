@@ -57,12 +57,22 @@ function geminiGenConfig({ temperature, maxTokens, topP, topK }) {
 export async function chat(provider, key, { system, prompt, temperature = 0.7, maxTokens = 300, topP, topK }) {
   if (provider === 'gemini') {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
-    const body = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: geminiGenConfig({ temperature, maxTokens, topP, topK }),
+    const base = { contents: [{ role: 'user', parts: [{ text: prompt }] }] }
+    if (system) base.systemInstruction = { parts: [{ text: system }] }
+    const send = (generationConfig) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, generationConfig }) }).then(asJson)
+    // Gemini answers "Request contains an invalid argument." when the model
+    // rejects an optional knob (thinkingConfig, topK, topP). Retry with fewer knobs.
+    const full = geminiGenConfig({ temperature, maxTokens, topP, topK })
+    const { thinkingConfig, ...noThinking } = full
+    const attempts = [full, noThinking, { temperature, maxOutputTokens: maxTokens }]
+    let j, lastErr
+    for (const cfg of attempts) {
+      try { j = await send(cfg); break } catch (e) {
+        lastErr = e
+        if (!/invalid argument/i.test(e.message)) throw e
+      }
     }
-    if (system) body.systemInstruction = { parts: [{ text: system }] }
-    const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
+    if (!j) throw lastErr
     return (j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('').trim()
   }
   if (provider === 'openai') {
