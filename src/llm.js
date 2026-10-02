@@ -32,7 +32,10 @@ export const PROVIDERS = {
 async function asJson(r) {
   const j = await r.json().catch(() => ({}))
   if (!r.ok) {
-    const msg = j?.error?.message || j?.error?.type || j?.message || `HTTP ${r.status}`
+    let msg = j?.error?.message || j?.error?.type || j?.message || `HTTP ${r.status}`
+    // Google puts the offending field in error.details[].fieldViolations — surface it.
+    const fields = (j?.error?.details || []).flatMap((d) => d.fieldViolations || []).map((f) => [f.field, f.description].filter(Boolean).join(': '))
+    if (fields.length) msg += ` (${fields.join('; ')})`
     throw new Error(msg)
   }
   return j
@@ -50,26 +53,37 @@ function geminiGenConfig({ temperature, maxTokens, topP, topK }) {
   return cfg
 }
 
+// Pinned models to fall back to if the "-latest" alias rejects requests.
+const GEMINI_FALLBACK_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash']
+let geminiWorkingModel = null // remembered after the first success
+
 // Sampling knobs are shared across providers, but support differs:
 //   • temperature → all three
 //   • topP        → all three
 //   • topK        → Gemini & Anthropic only (OpenAI's API has no top_k)
 export async function chat(provider, key, { system, prompt, temperature = 0.7, maxTokens = 300, topP, topK }) {
   if (provider === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
     const base = { contents: [{ role: 'user', parts: [{ text: prompt }] }] }
     if (system) base.systemInstruction = { parts: [{ text: system }] }
-    const send = (generationConfig) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, generationConfig }) }).then(asJson)
+    const send = (model, generationConfig) => fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, generationConfig }) },
+    ).then(asJson)
     // Gemini answers "Request contains an invalid argument." when the model
-    // rejects an optional knob (thinkingConfig, topK, topP). Retry with fewer knobs.
+    // rejects a knob (thinkingConfig, topK, topP) — or when the moving
+    // "-latest" alias points at a model that rejects the request outright.
+    // Retry with fewer knobs, then on pinned models.
     const full = geminiGenConfig({ temperature, maxTokens, topP, topK })
     const { thinkingConfig, ...noThinking } = full
-    const attempts = [full, noThinking, { temperature, maxOutputTokens: maxTokens }]
+    const configs = [full, noThinking, { temperature, maxOutputTokens: maxTokens }]
+    const models = geminiWorkingModel ? [geminiWorkingModel] : [PROVIDERS.gemini.model, ...GEMINI_FALLBACK_MODELS]
     let j, lastErr
-    for (const cfg of attempts) {
-      try { j = await send(cfg); break } catch (e) {
-        lastErr = e
-        if (!/invalid argument/i.test(e.message)) throw e
+    outer: for (const model of models) {
+      for (const cfg of configs) {
+        try { j = await send(model, cfg); geminiWorkingModel = model; break outer } catch (e) {
+          lastErr = e
+          if (!/invalid argument|not found|not supported/i.test(e.message)) throw e
+        }
       }
     }
     if (!j) throw lastErr
