@@ -1,6 +1,6 @@
 # 6 · 📧 Project: Personalization
 
-> Part of the [Learner's Walkthrough](../WALKTHROUGH.md) · ← [Tools](05-tools.md)
+> Part of the [Learner's Walkthrough](../WALKTHROUGH.md) · ← [Tools](05-tools.md) · Next → [Context Engineering](07-context.md)
 
 **Goal:** hyper-personalised marketing at scale — the finale that combines
 **embeddings** (find related products), **high temperature** (creative copy), and
@@ -46,4 +46,4 @@ demos.
 You can have *both* creativity and reliability — creative copy locked inside a
 predictable payload.
 
-> ← [Tools](05-tools.md) · Back to the [index](../WALKTHROUGH.md)
+> ← [Tools](05-tools.md) · Next → [Context Engineering](07-context.md)

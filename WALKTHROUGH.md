@@ -21,6 +21,10 @@ you **what to do, where to click, what to read, and what to learn.**
 | 4 | 📚 RAG | [docs/04-rag.md](docs/04-rag.md) | Grounded answers, refusals, RAG vs fine-tuning |
 | 5 | 🤖 Tools | [docs/05-tools.md](docs/05-tools.md) | A multi-step, tool-using agent |
 | 6 | 📧 Personalization | [docs/06-personalization.md](docs/06-personalization.md) | Embeddings + creativity + strict JSON |
+| 7 | 🧭 Context | [docs/07-context.md](docs/07-context.md) | Token budgets, relevance ranking, and beating "Lost in the Middle" |
+| 8 | 🧠 Memory | [docs/08-memory.md](docs/08-memory.md) | Short-term rolling summaries + long-term cross-session fact stores |
+| 9 | 🔌 MCP | [docs/09-mcp.md](docs/09-mcp.md) | Model Context Protocol — universal Resources, Tools, and Prompts |
+| 10 | ⚡ Inference | [docs/10-inference.md](docs/10-inference.md) | Serving at scale: Model routing, KV prefix caching, and streaming (TTFT) |
 
 ---
 
@@ -32,14 +36,16 @@ developers* version. See **[docs/labs/](docs/labs/README.md)**.
 
 Direct downloads (live site): `https://priyankavergadia.github.io/life-of-a-token/labs/`
 — `genai-lab`, `project-llm-outputs`, `project-rag`, `project-tools`,
-`project-personalization` (each as `.ipynb` and `.py`).
+`project-personalization`, `project-context`, `project-memory`, `project-mcp`,
+`project-inference` (each as `.ipynb` and `.py`).
 
 ## How the app is organised
 
-Two groups of tabs at the top:
+Three groups of tabs at the top:
 
 - **Learn** — 🔤 Life of a Token (theory) · 🧪 GenAI Lab (foundations)
-- **Projects** — 🛡️ LLM Outputs · 📚 RAG · 🤖 Tools · 📧 Personalization (end-to-end builds)
+- **Projects** — 🛡️ LLM Outputs · 📚 RAG · 🤖 Tools · 📧 Personalization · 🧭 Context · 🧠 Memory · 🔌 MCP · ⚡ Inference (end-to-end patterns)
+- **Build** — 🛠️ Vibe Coding · 🎨 Greeting Cards (full-app & multi-agent capstones)
 
 > 🐈 *Don't be surprised by the ginger cat strolling across the bottom of the
 > screen — she's just here to keep things fun.*
@@ -68,7 +74,8 @@ the **← / →** arrow keys.
 
 1. **[Life of a Token](docs/01-life-of-a-token.md)** — build the mental model (no key needed).
 2. **[GenAI Lab](docs/02-genai-lab.md)** — learn the six foundations; add a key and run each one for real.
-3. **Projects, in order** — [LLM Outputs](docs/03-llm-outputs.md) → [RAG](docs/04-rag.md) → [Tools](docs/05-tools.md) → [Personalization](docs/06-personalization.md) — to see the foundations assembled into real applications.
+3. **Projects 1–4 (Core Application Patterns)** — [LLM Outputs](docs/03-llm-outputs.md) → [RAG](docs/04-rag.md) → [Tools](docs/05-tools.md) → [Personalization](docs/06-personalization.md).
+4. **Projects 5–8 (Context, State, Protocol & Production Scale)** — [Context](docs/07-context.md) → [Memory](docs/08-memory.md) → [MCP](docs/09-mcp.md) → [Inference](docs/10-inference.md).
 
 **Tips while you go:**
 - Always try the **editable code / inputs** — change a value and re-run to see
@@ -77,5 +84,6 @@ the **← / →** arrow keys.
   behaviours, not canned tricks.
 
 > **By the end you should understand**, end to end: how an LLM turns text into a
-> prediction, and how the six foundational skills combine into the kinds of AI
-> systems companies actually ship.
+> prediction, how the six foundational skills combine into working features, and
+> how context engineering, memory, MCP, and inference engineering turn those
+> features into fast, scalable production systems.

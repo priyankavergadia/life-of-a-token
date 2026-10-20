@@ -719,8 +719,10 @@ payload = (prompt | structured_llm).invoke({...})
 # → guaranteed valid JSON for SendGrid / Mailchimp`,
     explain: <><p>Temperature <b>0.8</b> makes it fun and creative — but the Pydantic schema forces that creativity into a <b>strict JSON object</b> that won’t break your automated email server.</p><div className="note"><b>Generate for real →</b> see the same output as both an email <i>and</i> a JSON payload.</div></> },
   { id: 'd', tab: 'Recap', kicker: 'Done', title: 'Creativity, safely caged', file: 'done.py', pose: 'cheer', color: '#ffc02e', Visual: () => <div className="recap"><Reveal><div className="recap-row"><span className="recap-check">✓</span> Semantic product matching</div></Reveal><Reveal d={0.1}><div className="recap-row"><span className="recap-check">✓</span> High-temperature creative copy</div></Reveal><Reveal d={0.2}><div className="recap-row"><span className="recap-check">✓</span> Strict JSON for downstream APIs</div></Reveal><Reveal d={0.4}><div className="recap-done">🎓 Personalization at massive scale.</div></Reveal></div>,
-    code: `# 🎓 Project 4 complete — and you've finished the series!\n# Add a customer_persona field, or wire it to SendGrid to send live.`,
-    explain: <p>The same pattern powers cold-email SDRs, dynamic push notifications, and SEO content factories — creative AI you can actually trust in production.</p> },
+    code: `# 🎓 Project 4 complete!
+# Next: what happens when your prompt fills up with noisy chunks & stale docs?
+# Let's master what goes into the window -> Project 5: Context Engineering`,
+    explain: <p>The same pattern powers cold-email SDRs, dynamic push notifications, and SEO content factories — creative AI you can actually trust in production. Next up: <b>🧭 Context Engineering</b>.</p> },
 ]
 const C4_GUIDE = {
   files: { ipynb: 'project-personalization.ipynb', py: 'project-personalization.py' },

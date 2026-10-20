@@ -3,6 +3,7 @@ import { SketchDefs, WalkingCat, CloudGirlLogo, CloudDoodle } from './Doodles.js
 import TokenJourney from './TokenJourney.jsx'
 import LabJourney from './LabJourney.jsx'
 import { Capstone1, Capstone2, Capstone3, Capstone4 } from './capstones.jsx'
+import { Capstone5, Capstone6, Capstone7, Capstone8 } from './advancedLabs.jsx'
 import VibeCoding from './VibeCoding.jsx'
 import GreetingCards from './GreetingCards.jsx'
 import { useCreds } from './labkit.jsx'
@@ -16,6 +17,10 @@ const VIEWS = [
   { id: 'c2', slug: 'rag', label: 'RAG', icon: '📚', group: 'Projects' },
   { id: 'c3', slug: 'tools', label: 'Tools', icon: '🤖', group: 'Projects' },
   { id: 'c4', slug: 'personalization', label: 'Personalization', icon: '📧', group: 'Projects' },
+  { id: 'c5', slug: 'context', label: 'Context', icon: '🧭', group: 'Projects' },
+  { id: 'c6', slug: 'memory', label: 'Memory', icon: '🧠', group: 'Projects' },
+  { id: 'c7', slug: 'mcp', label: 'MCP', icon: '🔌', group: 'Projects' },
+  { id: 'c8', slug: 'inference', label: 'Inference', icon: '⚡', group: 'Projects' },
 ]
 
 // Lightweight hash routing so each tab is deep-linkable, e.g. .../#/rag
@@ -53,6 +58,10 @@ export default function App() {
       case 'c2': return <Capstone2 creds={creds} setCreds={setCreds} />
       case 'c3': return <Capstone3 creds={creds} setCreds={setCreds} />
       case 'c4': return <Capstone4 creds={creds} setCreds={setCreds} />
+      case 'c5': return <Capstone5 creds={creds} setCreds={setCreds} />
+      case 'c6': return <Capstone6 creds={creds} setCreds={setCreds} />
+      case 'c7': return <Capstone7 creds={creds} setCreds={setCreds} />
+      case 'c8': return <Capstone8 creds={creds} setCreds={setCreds} />
       default: return null
     }
   }
