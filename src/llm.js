@@ -86,7 +86,8 @@ export async function chat(provider, key, { system, prompt, temperature = 0.7, m
     if (topK != null) generationConfig.topK = topK
     const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig }
     if (system) body.systemInstruction = { parts: [{ text: system }] }
-    return geminiText(await geminiGenerate(key, body)).trim()
+    const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
+    return (j.candidates?.[0]?.content?.parts || []).filter((p) => !p.thought).map((p) => p.text || '').join('').trim()
   }
   if (provider === 'openai') {
     const messages = []
@@ -146,7 +147,7 @@ export async function chatWithImage(provider, key, { prompt, base64, mime = 'ima
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
     const body = { contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }] }
     const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
-    return (j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('').trim()
+    return (j.candidates?.[0]?.content?.parts || []).filter((p) => !p.thought).map((p) => p.text || '').join('').trim()
   }
   if (provider === 'openai') {
     const j = await asJson(await fetch('https://api.openai.com/v1/chat/completions', {
@@ -190,11 +191,14 @@ export async function runAgent(provider, key, query) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
     const tools = [{ function_declarations: [{ name: TOOL.name, description: TOOL.description, parameters: { type: 'object', properties: { weight_kg: { type: 'number' }, destination: { type: 'string' } }, required: ['weight_kg', 'destination'] } }] }]
     const c1 = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: query }] }], tools }) }))
-    const fc = c1.candidates?.[0]?.content?.parts?.find((p) => p.functionCall)?.functionCall
-    if (!fc) return { args: null, toolResult: null, answer: c1.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '(no tool call)' }
+    const modelContent = c1.candidates?.[0]?.content
+    const parts = modelContent?.parts || []
+    const fc = parts.find((p) => p.functionCall)?.functionCall
+    if (!fc) return { args: null, toolResult: null, answer: parts.filter((p) => !p.thought).map((p) => p.text || '').join('') || '(no tool call)' }
     const toolResult = shippingCost(fc.args.weight_kg, fc.args.destination)
-    const c2 = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ functionCall: fc }] }, { role: 'user', parts: [{ functionResponse: { name: TOOL.name, response: { result: toolResult } } }] }], tools }) }))
-    const answer = c2.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('').trim()
+    // Preserve modelContent (including thoughtSignature on functionCall parts) as required by Gemini 2.5+
+    const c2 = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: query }] }, modelContent, { role: 'user', parts: [{ functionResponse: { name: TOOL.name, response: { result: toolResult } } }] }], tools }) }))
+    const answer = (c2.candidates?.[0]?.content?.parts || []).filter((p) => !p.thought).map((p) => p.text || '').join('').trim()
     return { args: fc.args, toolResult, answer }
   }
   if (provider === 'openai') {
@@ -381,10 +385,12 @@ export async function runAgentMulti(provider, key, query, tools, system, maxRoun
     if (system) base.systemInstruction = { parts: [{ text: system }] }
     for (let r = 0; r < maxRounds; r++) {
       const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, contents }) }))
-      const parts = j.candidates?.[0]?.content?.parts || []
+      const modelContent = j.candidates?.[0]?.content
+      const parts = modelContent?.parts || []
       const calls = parts.filter((p) => p.functionCall).map((p) => p.functionCall)
-      if (!calls.length) return { trace, answer: parts.map((p) => p.text || '').join('').trim() }
-      contents.push({ role: 'model', parts: calls.map((c) => ({ functionCall: c })) })
+      if (!calls.length) return { trace, answer: parts.filter((p) => !p.thought).map((p) => p.text || '').join('').trim() }
+      // Push the full modelContent so thoughtSignature on functionCall parts is preserved across turns
+      contents.push(modelContent)
       const respParts = []
       for (const c of calls) {
         const result = String(byName[c.name].fn(c.args))
