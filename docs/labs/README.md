@@ -15,6 +15,10 @@ variable between Gemini, OpenAI, and Claude.
 | Project: RAG | [for-everyone](rag-for-everyone.md) | [for-developers](rag-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-rag.ipynb) | [.ipynb](../../public/labs/project-rag.ipynb) · [.py](../../public/labs/project-rag.py) |
 | Project: Tools | [for-everyone](tools-for-everyone.md) | [for-developers](tools-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-tools.ipynb) | [.ipynb](../../public/labs/project-tools.ipynb) · [.py](../../public/labs/project-tools.py) |
 | Project: Personalization | [for-everyone](personalization-for-everyone.md) | [for-developers](personalization-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-personalization.ipynb) | [.ipynb](../../public/labs/project-personalization.ipynb) · [.py](../../public/labs/project-personalization.py) |
+| Project: Context Engineering | [for-everyone](context-for-everyone.md) | [for-developers](context-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-context.ipynb) | [.ipynb](../../public/labs/project-context.ipynb) · [.py](../../public/labs/project-context.py) |
+| Project: Memory | [for-everyone](memory-for-everyone.md) | [for-developers](memory-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-memory.ipynb) | [.ipynb](../../public/labs/project-memory.ipynb) · [.py](../../public/labs/project-memory.py) |
+| Project: MCP | [for-everyone](mcp-for-everyone.md) | [for-developers](mcp-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-mcp.ipynb) | [.ipynb](../../public/labs/project-mcp.ipynb) · [.py](../../public/labs/project-mcp.py) |
+| Project: Inference Engineering | [for-everyone](inference-for-everyone.md) | [for-developers](inference-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-inference.ipynb) | [.ipynb](../../public/labs/project-inference.ipynb) · [.py](../../public/labs/project-inference.py) |
 | Vibe Coding (assignment) | [for-everyone](vibe-coding-for-everyone.md) | [for-developers](vibe-coding-for-developers.md) | — | — *(guide, no notebook)* |
 | Greeting Cards (final project) | [for-everyone](greeting-card-for-everyone.md) | [for-developers](greeting-card-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/greeting-card.ipynb) | [.ipynb](../../public/labs/greeting-card.ipynb) · [.py](../../public/labs/greeting-card.py) |
 
@@ -27,6 +31,10 @@ Base URL: `https://priyankavergadia.github.io/life-of-a-token/labs/`
 - `project-rag.ipynb` / `project-rag.py`
 - `project-tools.ipynb` / `project-tools.py`
 - `project-personalization.ipynb` / `project-personalization.py`
+- `project-context.ipynb` / `project-context.py`
+- `project-memory.ipynb` / `project-memory.py`
+- `project-mcp.ipynb` / `project-mcp.py`
+- `project-inference.ipynb` / `project-inference.py`
 
 ### Running the notebooks
 1. Open the `.ipynb` in **Jupyter**, **VS Code**, or **Google Colab** (or run the `.py`).

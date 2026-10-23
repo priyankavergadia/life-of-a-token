@@ -827,3 +827,67 @@ button { font-family: inherit; cursor: pointer; }
 .email-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 15px 14px; }
 .email-code { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--coral); border: 2px dashed var(--coral); border-radius: 7px; padding: 4px 9px; }
 .email-cta { font-family: var(--hand); font-size: 17px; font-weight: 700; color: var(--ink); background: linear-gradient(135deg, var(--yellow), var(--orange)); border: 2.3px solid var(--ink); border-radius: 11px; padding: 6px 14px; box-shadow: var(--sticker-sm); }
+
+/* ============================================================
+   Projects 5–8: Inference, Context, Memory, MCP
+   ============================================================ */
+.inf-route-card { border: 2.6px solid var(--ink); border-radius: 13px; background: var(--panel); padding: 12px 14px; box-shadow: var(--sticker-sm); }
+.inf-route-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.inf-tier-badge { font-family: var(--sans); font-size: 12.5px; font-weight: 700; color: #fff; border: 2px solid var(--ink); border-radius: 99px; padding: 3px 11px; }
+.inf-tier-model { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); }
+.inf-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.inf-metric { border: 2px solid var(--line); border-radius: 9px; background: var(--panel-2); padding: 7px 10px; display: flex; flex-direction: column; gap: 2px; }
+.inf-metric span { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+.inf-metric b { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+.inf-kv-box { border: 2.4px solid var(--ink); border-radius: 12px; background: var(--panel); padding: 11px 13px; box-shadow: var(--sticker-sm); }
+.inf-kv-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.ctx-meter { border: 2.4px solid var(--ink); border-radius: 11px; background: var(--panel); padding: 10px 12px; box-shadow: var(--sticker-sm); }
+.ctx-meter-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12.5px; margin-bottom: 6px; }
+.ctx-list { display: flex; flex-direction: column; gap: 7px; }
+.ctx-item { border: 2.2px solid var(--ink); border-radius: 10px; padding: 8px 11px; background: var(--panel); box-shadow: var(--sticker-sm); transition: all 0.2s ease; }
+.ctx-item.kept { background: rgba(21,179,164,0.1); border-color: var(--teal-deep); }
+.ctx-item.dropped { opacity: 0.52; background: var(--panel-3); border-style: dashed; }
+.ctx-item.trap { background: rgba(242,85,61,0.14); border-color: var(--coral); }
+.ctx-item-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; font-family: var(--mono); font-size: 11.5px; }
+.ctx-src { font-weight: 700; color: var(--ink); }
+.ctx-tok { color: var(--text-dim); }
+.ctx-status { margin-left: auto; font-weight: 700; font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1.6px solid var(--ink); }
+.ctx-status.on { background: var(--teal); color: #fff; }
+.ctx-status.off { background: var(--panel); color: var(--text-dim); }
+.ctx-item-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.4; }
+
+.mem-summary-box { border: 2.4px dashed var(--plum); border-radius: 11px; background: #f4f0ff; padding: 10px 13px; }
+.mem-sum-h { font-family: var(--hand); font-size: 17px; font-weight: 700; color: var(--plum); margin-bottom: 4px; }
+.mem-sum-body { font-size: 12.8px; color: var(--ink-soft); line-height: 1.45; }
+.mem-turns { display: flex; flex-direction: column; gap: 6px; }
+.mem-turn { border: 2px solid var(--ink); border-radius: 9px; padding: 7px 10px; font-size: 12.5px; background: var(--panel); }
+.mem-turn.active { background: var(--panel-2); box-shadow: var(--sticker-sm); }
+.mem-turn.folded { opacity: 0.5; border-style: dashed; background: var(--panel-3); }
+.mem-t-badge { font-family: var(--mono); font-size: 10.5px; font-weight: 700; color: var(--orange); display: block; margin-bottom: 2px; }
+.mem-t-u, .mem-t-a { color: var(--ink-soft); line-height: 1.35; }
+.mem-facts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+.mem-fact-pill { font-family: var(--mono); font-size: 11.5px; background: var(--panel); border: 2px solid var(--ink); border-radius: 8px; padding: 4px 9px; box-shadow: var(--sticker-sm); color: var(--ink-soft); }
+.mem-fact-pill b { color: var(--teal-deep); }
+
+.mcp-prim-card { border: 2.3px solid var(--ink); border-radius: 11px; background: var(--panel-2); padding: 9px 12px; margin-bottom: 8px; box-shadow: var(--sticker-sm); }
+.mcp-prim-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.mcp-prim-ic { font-size: 18px; }
+.mcp-method { font-family: var(--mono); font-size: 11px; background: var(--panel); border: 1.6px solid var(--ink); border-radius: 6px; padding: 1px 6px; color: var(--plum); font-weight: 700; }
+.mcp-ctrl { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--text-dim); font-weight: 600; }
+.mcp-prim-d { font-size: 12.5px; color: var(--ink-soft); line-height: 1.4; }
+.mcp-prim-link { font-family: var(--mono); font-size: 11px; color: var(--teal-deep); font-weight: 700; margin-top: 4px; }
+
+.mcp-plugs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.mcp-plug { text-align: left; border: 2.3px solid var(--ink); border-radius: 11px; padding: 8px 11px; background: var(--panel); box-shadow: var(--sticker-sm); transition: all 0.15s ease; }
+.mcp-plug.on { background: rgba(21,179,164,0.13); border-color: var(--teal-deep); }
+.mcp-plug.off { opacity: 0.55; border-style: dashed; background: var(--panel-3); }
+.mcp-plug-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink); }
+.mcp-plug-dot { font-size: 10.5px; color: var(--teal-deep); }
+.mcp-plug.off .mcp-plug-dot { color: var(--coral); }
+.mcp-plug-d { font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; }
+.mcp-wire { display: flex; flex-direction: column; gap: 5px; font-family: var(--mono); font-size: 11.5px; }
+.mcp-frame { display: flex; flex-direction: column; gap: 2px; background: var(--panel); border: 1.8px solid var(--ink); border-radius: 8px; padding: 5px 9px; }
+.mcp-frame.call { background: var(--panel-2); border-color: var(--orange); }
+.mcp-frame code { font-weight: 700; color: var(--ink); }
+.mcp-frame span { color: var(--ink-soft); font-size: 11px; word-break: break-word; }
