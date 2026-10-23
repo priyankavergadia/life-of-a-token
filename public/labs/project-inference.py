@@ -32,7 +32,7 @@ def make_llm(temperature=0.7, top_p=None, top_k=None, tier="fast", **kw):
     """Return a LangChain chat model for the chosen PROVIDER and tier ('fast' or 'frontier')."""
     if PROVIDER == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
-        model = "gemini-flash-lite-latest" if tier == "fast" else "gemini-2.5-pro"
+        model = "gemini-flash-lite-latest" if tier == "fast" else "gemini-2.5-flash"
         p = dict(model=model, temperature=temperature)
         if top_p is not None: p["top_p"] = top_p
         if top_k is not None: p["top_k"] = top_k
@@ -75,8 +75,7 @@ def score_complexity(query: str) -> float:
 def route_and_invoke(query: str):
     score = score_complexity(query)
     tier = "frontier" if score >= COMPLEXITY_THRESHOLD else "fast"
-    # Note: in free-tier demos we fall back to fast if frontier quota isn't enabled
-    llm = make_llm(temperature=0.1, tier="fast")
+    llm = make_llm(temperature=0.1, tier=tier)
     t0 = time.perf_counter()
     reply = llm.invoke(query).content
     ms = round((time.perf_counter() - t0) * 1000)

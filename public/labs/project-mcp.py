@@ -139,8 +139,7 @@ def triage_order_prompt(order_id: str) -> str:
 
 # ## 2 · Discover capabilities via MCP JSON-RPC & run the agent
 
-import functools
-from langchain_core.tools import StructuredTool
+from langchain_core.tools import tool as lc_tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 
@@ -148,16 +147,25 @@ print("1. Handshake & capability discovery:")
 print("  <-", mcp.handle_rpc("initialize"))
 policy_res = mcp.handle_rpc("resources/read", {"uri": "policy://refunds"})
 discovered = mcp.handle_rpc("tools/list")["tools"]
+print("  <- Discovered tools:", [t["name"] for t in discovered])
 
-def make_mcp_langchain_tool(mcp_server, tool_name: str, description: str):
-    """Wrap a discovered MCP tool so every invocation routes over JSON-RPC ('tools/call')."""
-    orig_fn = mcp_server._tools[tool_name]
-    @functools.wraps(orig_fn)
-    def _rpc_caller(**kwargs):
-        return mcp_server.handle_rpc("tools/call", {"name": tool_name, "arguments": kwargs})["content"]
-    return StructuredTool.from_function(func=_rpc_caller, name=tool_name, description=description)
+# Bind the discovered MCP tools for LangChain (each call routes over MCP JSON-RPC 'tools/call')
+@lc_tool
+def lookup_order_tool(order_id: str) -> str:
+    """Look up an order by order_id (e.g. ORD-404) via the Orders MCP server."""
+    return mcp.handle_rpc("tools/call", {"name": "lookup_order", "arguments": {"order_id": order_id}})["content"]
 
-toolkit = [make_mcp_langchain_tool(mcp, t["name"], t["description"]) for t in discovered]
+@lc_tool
+def issue_refund_tool(order_id: str, amount_usd: float) -> str:
+    """Issue a refund in USD for an eligible order_id via the Orders MCP server."""
+    return mcp.handle_rpc("tools/call", {"name": "issue_refund", "arguments": {"order_id": order_id, "amount_usd": amount_usd}})["content"]
+
+@lc_tool
+def post_slack_alert_tool(channel: str, message: str) -> str:
+    """Post a short confirmation alert to a Slack channel (e.g. #support-ops) via the Slack MCP server."""
+    return mcp.handle_rpc("tools/call", {"name": "post_slack_alert", "arguments": {"channel": channel, "message": message}})["content"]
+
+toolkit = [lookup_order_tool, issue_refund_tool, post_slack_alert_tool]
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", f"You are an operations agent connected via MCP.\nDiscovered Resource [policy://refunds]: {policy_res['text']}"),
