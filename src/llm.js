@@ -32,23 +32,48 @@ export const PROVIDERS = {
 async function asJson(r) {
   const j = await r.json().catch(() => ({}))
   if (!r.ok) {
-    const msg = j?.error?.message || j?.error?.type || j?.message || `HTTP ${r.status}`
+    let msg = j?.error?.message || j?.error?.type || j?.message || `HTTP ${r.status}`
+    // Google puts the offending field in error.details[].fieldViolations — surface it.
+    const fields = (j?.error?.details || []).flatMap((d) => d.fieldViolations || []).map((f) => [f.field, f.description].filter(Boolean).join(': '))
+    if (fields.length) msg += ` (${fields.join('; ')})`
     throw new Error(msg)
   }
   return j
 }
 
 /* ---------------------------------------------------------------- CHAT (text) */
-// Build a Gemini generationConfig. We disable "thinking" (thinkingBudget: 0) so
-// the model spends its whole token budget on the visible answer — otherwise
-// gemini-flash-lite-latest can burn a small maxOutputTokens entirely on hidden thinking
-// and return an empty response (the source of the blank/errored Gemini calls).
-function geminiGenConfig({ temperature, maxTokens, topP, topK }) {
-  const cfg = { temperature, maxOutputTokens: maxTokens, thinkingConfig: { thinkingBudget: 0 } }
-  if (topP != null) cfg.topP = topP
-  if (topK != null) cfg.topK = topK
-  return cfg
+// Keep Gemini's hidden "thinking" to a minimum so a small maxOutputTokens is
+// spent on the visible answer. Current Gemini models reject the old
+// `thinkingBudget: 0` with "Request contains an invalid argument.", so we ask
+// for `thinkingLevel: 'minimal'` instead.
+const GEMINI_THINKING = { thinkingLevel: 'minimal' }
+
+// Pinned models to fall back to if the "-latest" alias rejects requests.
+const GEMINI_FALLBACK_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite']
+let geminiWorkingModel = null // remembered after the first success
+
+// POST a generateContent request. If Gemini rejects the thinking knob, retry
+// without it; if the model itself rejects the request, try the pinned models.
+async function geminiGenerate(key, body) {
+  const send = (model, generationConfig) => fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, generationConfig }) },
+  ).then(asJson)
+  const { thinkingConfig, ...noThinking } = body.generationConfig
+  const configs = [body.generationConfig, noThinking]
+  const models = geminiWorkingModel ? [geminiWorkingModel] : [PROVIDERS.gemini.model, ...GEMINI_FALLBACK_MODELS]
+  let lastErr
+  for (const model of models) {
+    for (const cfg of configs) {
+      try { const j = await send(model, cfg); geminiWorkingModel = model; return j } catch (e) {
+        lastErr = e
+        if (!/invalid argument|not found|not supported|no longer available/i.test(e.message)) throw e
+      }
+    }
+  }
+  throw lastErr
 }
+const geminiText = (j) => (j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('')
 
 // Sampling knobs are shared across providers, but support differs:
 //   • temperature → all three
@@ -56,11 +81,10 @@ function geminiGenConfig({ temperature, maxTokens, topP, topK }) {
 //   • topK        → Gemini & Anthropic only (OpenAI's API has no top_k)
 export async function chat(provider, key, { system, prompt, temperature = 0.7, maxTokens = 300, topP, topK }) {
   if (provider === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
-    const body = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: geminiGenConfig({ temperature, maxTokens, topP, topK }),
-    }
+    const generationConfig = { temperature, maxOutputTokens: maxTokens, thinkingConfig: GEMINI_THINKING }
+    if (topP != null) generationConfig.topP = topP
+    if (topK != null) generationConfig.topK = topK
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig }
     if (system) body.systemInstruction = { parts: [{ text: system }] }
     const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
     return (j.candidates?.[0]?.content?.parts || []).filter((p) => !p.thought).map((p) => p.text || '').join('').trim()
@@ -300,11 +324,9 @@ export function parseJSON(text) {
 // Chat that returns parsed JSON. Caller describes the shape in `prompt`/`system`.
 export async function chatJSON(provider, key, { system, prompt, temperature = 0.4, maxTokens = 500 }) {
   if (provider === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
-    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature, maxOutputTokens: maxTokens, response_mime_type: 'application/json', thinkingConfig: { thinkingBudget: 0 } } }
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature, maxOutputTokens: maxTokens, response_mime_type: 'application/json', thinkingConfig: GEMINI_THINKING } }
     if (system) body.systemInstruction = { parts: [{ text: system }] }
-    const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
-    return parseJSON((j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join(''))
+    return parseJSON(geminiText(await geminiGenerate(key, body)))
   }
   if (provider === 'openai') {
     const messages = []
@@ -329,10 +351,8 @@ export async function chatJSON(provider, key, { system, prompt, temperature = 0.
 // Vision → structured JSON (image in, parsed object out).
 export async function visionJSON(provider, key, { prompt, base64, mime = 'image/png' }) {
   if (provider === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${PROVIDERS.gemini.model}:generateContent?key=${encodeURIComponent(key)}`
-    const body = { contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }], generationConfig: { temperature: 0, response_mime_type: 'application/json', thinkingConfig: { thinkingBudget: 0 } } }
-    const j = await asJson(await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
-    return parseJSON((j.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join(''))
+    const body = { contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }], generationConfig: { temperature: 0, response_mime_type: 'application/json', thinkingConfig: GEMINI_THINKING } }
+    return parseJSON(geminiText(await geminiGenerate(key, body)))
   }
   if (provider === 'openai') {
     const j = await asJson(await fetch('https://api.openai.com/v1/chat/completions', {
