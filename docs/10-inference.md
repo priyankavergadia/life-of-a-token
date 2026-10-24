@@ -55,4 +55,4 @@ realistic demos. Left panel = code, right panel = live metrics & output.
 Right-size the model per request, order context layers static-first so the KV cache
 hits, and stream tokens so users never stare at a spinner.
 
-> ← [MCP](09-mcp.md) · Back to the [index](../WALKTHROUGH.md)
+> ← [MCP](09-mcp.md) · Next → [Evals](11-evals.md) · Back to the [index](../WALKTHROUGH.md)

@@ -19,6 +19,7 @@ variable between Gemini, OpenAI, and Claude.
 | Project: Memory | [for-everyone](memory-for-everyone.md) | [for-developers](memory-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-memory.ipynb) | [.ipynb](../../public/labs/project-memory.ipynb) · [.py](../../public/labs/project-memory.py) |
 | Project: MCP | [for-everyone](mcp-for-everyone.md) | [for-developers](mcp-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-mcp.ipynb) | [.ipynb](../../public/labs/project-mcp.ipynb) · [.py](../../public/labs/project-mcp.py) |
 | Project: Inference Engineering | [for-everyone](inference-for-everyone.md) | [for-developers](inference-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-inference.ipynb) | [.ipynb](../../public/labs/project-inference.ipynb) · [.py](../../public/labs/project-inference.py) |
+| Project: Evals | [for-everyone](evals-for-everyone.md) | [for-developers](evals-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/project-evals.ipynb) | [.ipynb](../../public/labs/project-evals.ipynb) · [.py](../../public/labs/project-evals.py) |
 | Vibe Coding (assignment) | [for-everyone](vibe-coding-for-everyone.md) | [for-developers](vibe-coding-for-developers.md) | — | — *(guide, no notebook)* |
 | Greeting Cards (final project) | [for-everyone](greeting-card-for-everyone.md) | [for-developers](greeting-card-for-developers.md) | [Colab](https://colab.research.google.com/github/priyankavergadia/life-of-a-token/blob/main/public/labs/greeting-card.ipynb) | [.ipynb](../../public/labs/greeting-card.ipynb) · [.py](../../public/labs/greeting-card.py) |
 
@@ -35,6 +36,7 @@ Base URL: `https://priyankavergadia.github.io/life-of-a-token/labs/`
 - `project-memory.ipynb` / `project-memory.py`
 - `project-mcp.ipynb` / `project-mcp.py`
 - `project-inference.ipynb` / `project-inference.py`
+- `project-evals.ipynb` / `project-evals.py`
 
 ### Running the notebooks
 1. Open the `.ipynb` in **Jupyter**, **VS Code**, or **Google Colab** (or run the `.py`).
