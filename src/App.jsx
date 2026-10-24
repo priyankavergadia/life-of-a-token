@@ -4,6 +4,7 @@ import TokenJourney from './TokenJourney.jsx'
 import LabJourney from './LabJourney.jsx'
 import { Capstone1, Capstone2, Capstone3, Capstone4 } from './capstones.jsx'
 import { Capstone5, Capstone6, Capstone7, Capstone8 } from './advancedLabs.jsx'
+import { Capstone9 } from './evalsLab.jsx'
 import VibeCoding from './VibeCoding.jsx'
 import GreetingCards from './GreetingCards.jsx'
 import { useCreds } from './labkit.jsx'
@@ -21,6 +22,7 @@ const VIEWS = [
   { id: 'c6', slug: 'memory', label: 'Memory', icon: '🧠', group: 'Projects' },
   { id: 'c7', slug: 'mcp', label: 'MCP', icon: '🔌', group: 'Projects' },
   { id: 'c8', slug: 'inference', label: 'Inference', icon: '⚡', group: 'Projects' },
+  { id: 'c9', slug: 'evals', label: 'Evals', icon: '⚖️', group: 'Projects' },
 ]
 
 // Lightweight hash routing so each tab is deep-linkable, e.g. .../#/rag
@@ -62,6 +64,7 @@ export default function App() {
       case 'c6': return <Capstone6 creds={creds} setCreds={setCreds} />
       case 'c7': return <Capstone7 creds={creds} setCreds={setCreds} />
       case 'c8': return <Capstone8 creds={creds} setCreds={setCreds} />
+      case 'c9': return <Capstone9 creds={creds} setCreds={setCreds} />
       default: return null
     }
   }
